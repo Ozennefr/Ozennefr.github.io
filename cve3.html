@@ -93,7 +93,25 @@
 
       <div class="col-main w3-container">
         <section id="content">
-          
+          <p>During spring 2017, I worked at Renault Lardy and studied the validation of the road linkage subsystem. The study was based on statistical analysis of client usage data. I automated the generation of those statistical analysis from raw data from hundreds of trips, 40 clients and 2 vehicles.</p>
+<h2>The problem</h2>
+<p>The vehicle is designed using Stress–strength analysis as way to assess the reliability of the car and estimate failure rates. This method relies on two probability distributions : 
+- The <strong>strength</strong> : It is dependent on the part design, on the material and on the manufacturing process. It is estimated either by numerical simulations or by unit tests on testbenches. The first part of the internship aimed at understanding test results on the wheel assembly, different sollicitations used during testing and the failure modes associated with them. Typically, the total damage at failure distribution is a Weibull or a log-normal.
+- The <strong>stress</strong> : The stress distribution is more of a probelm. It is supposed to model the behaviour of the user, namely what is the probability associated with a given total damage for a given mileage. To estimate it, we used data collected from real users in their everyday lives. Such campaigns are limited in time and very expensive thus rare. This means that we cannot know wether or not the sample is a good estimate of the global population.</p>
+<p>There is a catch with this technique : it relies on the hypothesis that the stress and strength curves are obtained for the <strong>same sollicitation</strong>. </p>
+<p>In practice, it is a hard task, namely because we cannot afford to test on real world scenariis, because it would be too long to test and thus a waste of time and money. To avoid this problem, we decompose the vehicle in subsystems and analyze them separetly, as not every part is affected the same way by a sollicitation. We can then simplify the problem to simple sollicitation on unit parts that are easier to test.</p>
+<p>That was for the strength distribution. But the stress distribution has its own challenges too. It may be a stretch to think that users in France give the same stress distribution as users in India, where roads are rougher and speeds lower. The problem might even arise between generations of drivers and different lifestyles.</p>
+<h2>Tools used</h2>
+<p>All of the signal processing was done using nCode GlyphWorks. This software was also used to calculate Rainflow cycles decomposition and damage calculation. The results were stored in csv filed that were managed using MS Bash and PowerShell. The files were then agglomerated by clients with Matlab. Matlab also handeled the final statistic plots and the reports generation. Using specialized launching scripts, I was able to automize the use of Glyphworks and encapsulate the whole process in a Matlab procedure.</p>
+<h2>Final results</h2>
+<p>The final results (that I unfortunately cannot show here) showed a good correlation with the theoretical probability distribution for one vehicle. It shows that the theoretical basis of the study holds, and that the tool can be used. On the other vehicle tested though, we observed a strange phenomenom, which comes from the mix of different population of drivers in the study. Some were gentle with the car while some were very sporty, this caused the total distribution to be skewed. Further study to separate the two behaviors could take place to verify this hypothesis.</p>
+<h2>Conclusion</h2>
+<p>This study taught me a lot about automotive engineering and parts certification. I also learned to use statistical modelling for mechanical engineering. Working with such a big amount of data (a few 100s of Gb of raw binary data) was a challenge, and was certainly stretching the cpacity of these traditionnal tools. Some of the sollicitations were not studied as we did not have the right sensors to study them. </p>
+<p>This internship has pushed me to learn more about Machine learning and Deep Learning to complement statistical methods and obtain better results. Some of the problems ML can adress are :
+- Client classification to have homogeneous populations and better our understanding of what makes them different
+- Sensors augmentation to improve the input data quality
+- Virtual sensors to replace expensive/impractical sensors with advanced models in field test
+- Event detection for advanced statistics and to reduce the damage metric limitations (plastification, plotholes, ...)</p>
         </section>
 
         <br><br><br>
