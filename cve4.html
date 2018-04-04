@@ -91,6 +91,31 @@
       <div class="col-main w3-container">
         <section id="content">
           <p>Since the beginning of my scholarship at the UTC (Autumn 2013), I work during my free time at team UTéCia to develop and build a fuel efficient prototype. My roles over the years include : communication manager, simulation engineer and since 2017, president of the association. I also worked on composite manufacturing procesees and engine tuning.</p>
+<h2>The project</h2>
+<p>team UTécia is an association which aims at building an energy efficient vehicle. Currently, our three wheeled prototype achieves a fuel consumption of 1130 kilometers per liters of fuel. </p>
+<p>The vehicle is made mostly for composite materials, which makes it only 32kg. Our main competition, Shell Eco Marathon Europe, takes place at the Queen Elizabth olympic parc in London. It involves two hundred teams from all over europe. We compete in the Internal combustion prototype category, which is one of the most disputed. We are classified 10th, with the winner of this category achieving 3000 km/L. </p>
+<p>One of the main particularities of our association is the wish to do everything we can ourselves from scratch, including moulds and composite material</p>
+<h2>Composite manufacturing</h2>
+<p>All of the composite manufacturing is done on site by our members, with help from our teachers. We use a process called infusion. It is the most practical for us as we don't have access to the big ovens needed for more advanced manufacturing processes.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/S34XCEe7yE4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+<p>Note that the process shown in the video is not complete. We add foam inserts afterward to improve the rigidity of the upper body.</p>
+<h2>Communication</h2>
+<p>During two years, I worked as communication manager. I organised events and wrote the monthly newsletter of the association. The job also involved internal communication, which is critical to keep members motivated and keep the project going.</p>
+<h2>Simulation</h2>
+<p>Th simulation of the behavior of our vehicle allow us to adopt the best strategy on race day. </p>
+<p>During competitions, the engine isn't on all of the time, and it is one of the best way to save fuel. As we run on a closed circuit, we can optimize our strategy to satisfy the minimum speed limitation while saving fuel.</p>
+<p>The simulation had multiples incarnations, each with their pros and cons. At the heart of each decision was the modeling of the centrifugal clutch.</p>
+<h3>Matlab/Simulink</h3>
+<p>The first one was done in matlab and simulink. It was latter dropped because it was over complicated and didn't satisfy all of our needs. One of the biggest issues was the clutch modeling, which inadvertantly encourages runing on the starter motor (while the engine is still of). This is indeed a great way to save fuel, but it is not possible in real life (our starter isn't strong enough, and it is strictly forbidden). While we could have artificially penalized such behaviour, we tried to obtain a better model of the clutch using modelica.</p>
+<h3>Modelica</h3>
+<p>The second simulation was done using Modelica, the language behind Dymolia and other industry softwares. This simulation took advantage of the particularities of Modelica (aimed at dynamic modeling, non-causal) to obtain a model as close to the mecanical system as possible. The clutch model was very efficient, and only dependant on physical constants (radius, friction coefficient, spring rates, ...)</p>
+<p>Although really powerfull, this model was later dropped because it was a challenge to obtain all of the parameters to feed the model. A minimalistic approach was then taken, which was concretized by an excel simulation.</p>
+<h3>Excel</h3>
+<p>It might be counter intuitive to think of excel as the best solution yet. We chose it (we could have come back to Matlab or used Python) because of it's protability and it's user-friendliness. As performance is'nt that much of an issue, we believe this was the right call. The simulation mainly happens in cells, allowing any users with basic knowledge of excel to tweak the model. VBA maccros are used to control timesteps.</p>
+<p>The clutch problem was resolved in a simple way. After looking at the results from our testbench, we saw that the behaviour of the engine speed was very close to the behavior of a PID controler. We modeled the control signal as the speed of the vehicle times the total powertrain reduction, and we saturated it at the starter speed to model its impact. After multiple trials and errors, we found the right coefficient to model our clutch.</p>
+<h2>Presidence</h2>
+<p>As president of the association, I animate advancement meetings, planify projects and manage people.</p>
         </section>
 
         <br><br><br>
