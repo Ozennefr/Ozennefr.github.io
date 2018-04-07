@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Markov and direct sampling &ndash; Ozenne Francois</title>
+
+    <!-- Meta -->
+    <meta name="description" content="Ozenne Francois &ndash; ">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Social -->
+    <meta property="article:author" content="François Ozenne" />
+    <meta property="article:section" content="Algorithms" />
+    <meta property="article:published_time" content="2018-04-04" />
+
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="Markov and direct sampling"/>
+    <meta property="og:description" content="In this article, we explore the differences between direct sampling and markov chain sampling. The problems are : the sampling of pi, the hard discs problem, and Quantum particle position sampling for a fixed temperature."/>
+    <meta property="og:site_name" content="Ozenne Francois" />
+    <meta property="og:url" content="https://ozennefr.github.io/mads.html"/>
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Markov and direct sampling">
+    <meta name="twitter:description" content="In this article, we explore the differences between direct sampling and markov chain sampling. The problems are : the sampling of pi, the hard discs problem, and Quantum particle position sampling for a fixed temperature.">
+    <meta name="twitter:url" content="https://ozennefr.github.io/mads.html">
+
+    <!-- Feed -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:regular,bold">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/w3.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/jqcloud.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/pygments-highlight-github.css">
+
+    <!-- Icon -->
+
+    <!-- JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ozennefr.github.io/theme/js/jqcloud.min.js"></script>
+  </head>
+
+  <body>
+    <div class="w3-row w3-card w3-white">
+      <header id="header">
+        <a href="https://ozennefr.github.io" id="header-logo" title="Home">OF</a>
+        <nav id="header-menu">
+          <ul>
+            <li><a href="https://ozennefr.github.io/pages/about.html">About</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" style="font-weight: bold;"><a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/cv-entries.html">CV entries</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a></li>
+          </ul>
+        </nav>
+      </header>
+    </div>
+
+
+
+    <br><br><br>
+
+    <article>
+      <header class="w3-container col-main">
+        <h1>Markov and direct sampling</h1>
+        <div class="post-info">
+          <div class="w3-opacity w3-margin-right w3-margin-bottom" style="flex-grow: 1;">
+            <span><time datetime="2018-04-04T09:30:00+02:00">mer. 04 avril 2018</time> in <a href="https://ozennefr.github.io/category/algorithms.html" title="All articles in category Algorithms">Algorithms</a></span>
+          </div>
+          <div>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/python.html" title="All articles with Python tag">#python</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/markov.html" title="All articles with Markov tag">#markov</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/sampling.html" title="All articles with Sampling tag">#sampling</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/metropolis-hasting.html" title="All articles with Metropolis-Hasting tag">#metropolis-hasting</a>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <br>
+
+
+      <div class="col-main w3-container">
+        <section id="content">
+          <h2>Sampling of $\pi$</h2>
+<p>We uniformly sample a square of side 2 centered on the origin. Whenever the sampled (x,y) coordinates form a vector whose norm is inferior to one (it belongs to the unit circle), we count it as a hit.</p>
+<p>The ratio hits/tries should converge to the ratio of areas, giving :</p>
+<p>$$
+\frac{hits}{tries} = \frac{A_{circle}}{A_{Square}}\
+\frac{hits}{tries} = \frac{\pi r^2}{2^2}\
+\frac{hits}{tries} = \frac{\pi}{4}
+$$</p>
+<p>We can thus approximate $\pi$ as : $4\cdot \frac{hits}{tries}$</p>
+<h3>A. Direct sampling approach</h3>
+<p>The direct sampling approach is the most straight forward. It relies purely on randomness with no fancy stuffing.</p>
+<p>We simply draw two random numbers from [-1 1] and thats it !</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">math</span><span class="o">,</span> <span class="nn">pylab</span>
+<span class="o">%</span><span class="n">pylab</span> <span class="n">inline</span>
+<span class="k">def</span> <span class="nf">direct_pi</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">n_hits</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">n_hits</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n_hits</span>
+</pre></div>
+
+
+<h3>Perfomance evalutation</h3>
+<p>To evaluate this method, we will try different values of trials. The more trials, the better our approximation should be. To avoid variance in our results due to the random nature of the process, we run each sampling 500 hundred times and average the results as well as compute the root mean square deviation. </p>
+<div class="highlight"><pre><span></span><span class="n">n_runs</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">n_trials_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sigmasqs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pi_ests</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poweroftwo</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+    <span class="n">n_trials</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">poweroftwo</span>
+    <span class="n">sigmasq</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">pi_est</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_runs</span><span class="p">):</span>
+        <span class="n">pi_est</span> <span class="o">+=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">direct_pi</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span>
+        <span class="n">sigmasq</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">direct_pi</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">pi_ests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pi_est</span><span class="o">/</span><span class="p">(</span><span class="n">n_runs</span><span class="p">))</span>
+    <span class="n">sigmasqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigmasq</span><span class="o">/</span><span class="p">(</span><span class="n">n_runs</span><span class="p">)))</span>
+    <span class="n">n_trials_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_trials_list</span><span class="p">,</span> <span class="n">pi_ests</span><span class="p">,</span> <span class="s1">&#39;o-&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">2</span><span class="o">**</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">],</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">])</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="c1">#pylab.yscale(&#39;log&#39;)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;number of trials&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;pi_estimate&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Direct sampling of pi: estimate vs. n_trials&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="png" src="output_9_1.png"></p>
+<p>We observe a pretty eratic convergence, and there seems to be no real motivation to do more than 1000 trials based on these results alone.</p>
+<div class="highlight"><pre><span></span><span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_trials_list</span><span class="p">,</span> <span class="n">sigmasqs</span><span class="p">,</span> <span class="s1">&#39;o-&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;number of trials&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;root mean square deviation&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Direct sampling of pi: root mean square deviation vs. n_trials&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="png" src="output_11_1.png"></p>
+<p>Plotting the standard deviation shows a spectacular result. There is a log-relationship between the number of trials and the deviation. That means that we can quantify our errors easily.</p>
+<h3>B. Markov sampling</h3>
+<p>Compared to direct sampling, Markov sampling seems needlessly complicated. </p>
+<p>It is based on the assumption that if you walk randomly in a room for a long time, you will eventually not only go everywhere only once, but you will also spend (approximatly) the same time everywhere in the room.</p>
+<p>This is a way to uniformly (and even arbitrary distributions with few modifications known as the Metropolis-Hastings algorithm) sample an arbitrarily complex space. </p>
+<p>In our simple problem, we implement it as follows :
+- we start from a given position
+- at each step, we make a random step along x and a random step along y. The length of these steps is randomly chosen in [$-\Delta$, $\Delta$], where $\Delta$ is a parameter of the algorithm.
+- It might happen that the sampled position is outside of the domain. In that case, we simply keep the old position as the new one. This propriety is <strong>essential</strong> for the convergence of the algorithm. It can be deduced from the ergodicity of the sampling, but I won't go into that right now.</p>
+<p>Finding the right $\Delta$ might sound like a hard task. Thankfully, there is a good rule of thumb that works surprisingly well on a large number of problems : the one half rule.</p>
+<p>This rule states that the optimal value of $\Delta$ should cause half of the moves to be rejected. If the rejection rate is too small, then your algorithm will likely be stuck in a small region of the search space. On the other extreme, if it is too big, you will likely have a hard time sampling the corners and avoid getting stuck for too long.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">markov_pi</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="n">n_hits</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">n_rejected</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">del_x</span><span class="p">,</span> <span class="n">del_y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">del_x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">del_y</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">del_x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">del_y</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">n_rejected</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span> <span class="n">n_hits</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n_hits</span><span class="p">,</span> <span class="n">n_rejected</span>
+</pre></div>
+
+
+<p>We will try our algorithm with different values of $\Delta$, to experiment with the one half rule.</p>
+<div class="highlight"><pre><span></span><span class="n">n_runs</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.062</span><span class="p">,</span> <span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]:</span>
+    <span class="n">n_trials_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sigmas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">poweroftwo</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+        <span class="n">n_trials</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">poweroftwo</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_runs</span><span class="p">):</span>
+            <span class="n">n_hits</span><span class="p">,</span> <span class="n">n_rejected</span> <span class="o">=</span> <span class="n">markov_pi</span><span class="p">(</span><span class="n">n_trials</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+            <span class="n">pi_est</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">n_hits</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span>
+            <span class="n">sigma</span> <span class="o">+=</span> <span class="p">(</span><span class="n">pi_est</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">sigmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma</span><span class="o">/</span><span class="p">(</span><span class="n">n_runs</span><span class="p">)))</span>
+        <span class="n">n_trials_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">n_trials_list</span><span class="p">,</span> <span class="n">sigmas</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ms</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;$\delta = $&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;acceptance = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">n_rejected</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_trials</span><span class="p">)))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;delta :&#39;</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;acceptance rate :&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">n_rejected</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_trials</span><span class="p">))</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;number of trials&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;root mean square deviation&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">10000</span><span class="p">],[</span><span class="mf">1.642</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">10.0</span><span class="p">),</span> <span class="mf">1.642</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">10000.0</span><span class="p">)],</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;direct&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Markov-chain sampling of pi: root mean square deviation vs. n_trials&#39;</span><span class="p">)</span>
+<span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">delta</span> <span class="o">:</span> <span class="mf">0.062</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.97119140625</span>
+<span class="n">delta</span> <span class="o">:</span> <span class="mf">0.125</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.937744140625</span>
+<span class="n">delta</span> <span class="o">:</span> <span class="mf">0.25</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.87109375</span>
+<span class="n">delta</span> <span class="o">:</span> <span class="mf">0.5</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.75927734375</span>
+<span class="n">delta</span> <span class="o">:</span> <span class="mf">1.0</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.564453125</span>
+<span class="n">delta</span> <span class="o">:</span> <span class="mf">2.0</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.26025390625</span>
+<span class="n">delta</span> <span class="o">:</span> <span class="mf">4.0</span>
+<span class="n">acceptance</span> <span class="n">rate</span> <span class="o">:</span> <span class="mf">0.06005859375</span>
+</pre></div>
+
+
+<p><img alt="png" src="output_17_2.png"></p>
+<p>As expected, the optimal $\delta$ (purple) gives an acceptance rate close to 50%.</p>
+<p>We see that markov sampling performs worse than direct sampling, which is to be expected. The real power of Markov sampling comes when the sampling problem is hard.</p>
+<h2>Packing of n-spheres</h2>
+<p>In this new problem, we will try to find configurations of sphere in a closed box. This problem originate from statistical mechanics and have interesting properties for understanding phase transition.</p>
+<p>This is a hard sampling problem, because if we choose the positions purely at random, the chance of having two discs overlapping is very high. When that happen, we must do a "tabula rasa" and start from scratch again (i.e. we cannot keep previously sampled disc for this configuration).</p>
+<h3>A. Direct sampling</h3>
+<p>$\sigma$ is the radius of the spheres. We use direct sampling to sample the position of the center of the disc. </p>
+<p>This function produces one valid configuration of spheres. To do so, it stores the already sampled discs in L. Whenever ther is an overlap, we start sampling again form scratch.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">direct_disks_box</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">while</span> <span class="n">overlap</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="p">[(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">sigma</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">sigma</span><span class="p">))]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">sigma</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">sigma</span><span class="p">))</span>
+            <span class="n">min_dist_sq</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(((</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">L</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">min_dist_sq</span> <span class="o">&lt;</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">overlap</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">overlap</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">L</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">time</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">n_runs</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="n">histo_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_runs</span><span class="p">):</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">direct_disks_box</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">histo_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">histo_data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;frequency&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Direct sampling: x coordinate histogram (density eta=0.125)&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>Wall time: 1min 12s
+</pre></div>
+
+
+<p><img alt="png" src="output_24_1.png"></p>
+<p>We sampled a pretty convincing histogram of positions in one minutes twelve.</p>
+<h2>B. Markov sampling</h2>
+<p>With the markov sampling method, we simply take an existing configuration, select a shpere at random and try to move it.
+If the move is legal, we keep it, if not, the new conguration is the same as the old. </p>
+<p>Contrarely to the direct sampling method, we sample only legal configurations, and even the rejected moves give us a configuration we should count.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">markov_disks_next_conf</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)))]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">),</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)]</span>
+    <span class="n">min_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">a</span><span class="p">)</span>
+    <span class="n">box_cond</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">sigma</span> <span class="ow">or</span> <span class="nb">max</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">sigma</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">box_cond</span> <span class="ow">or</span> <span class="n">min_dist</span> <span class="o">&lt;</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">a</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">b</span>
+
+    <span class="k">return</span> <span class="n">L</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">time</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">L</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]]</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">n_runs</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="n">histo_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_runs</span><span class="p">):</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">markov_disks_next_conf</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">histo_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">histo_data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;frequency&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Markov sampling: x coordinate histogram (density eta=0.125)&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>Wall time: 24.3 s
+</pre></div>
+
+
+<p><img alt="png" src="output_29_1.png"></p>
+<p>We sampled a pretty convincing histogram of positions in 24 seconds.
+We can see that the histogram is a bit fuzzier, but we can trade speed for extra precision.</p>
+<p>The speed gain of markov sampling increases with density, as the legal configurations become more and more rare.</p>
+<h2>Quantum particle position sampling for a fixed temperature</h2>
+<p>we sample a quantum particle in the harmonic potential, at finite temperature. 
+Its probability to be in state n and at position x is given by :
+$\pi(n, x) = (\psi_n(x))^2 * \exp(-\beta * E_n)$</p>
+<p>$E_n = n+ 1/2$</p>
+<p>The wave functions $\psi_n(x)$ are known</p>
+<p>The probability $\pi(n, x)$ expresses two fundamental aspects:</p>
+<p>The particle is in state n with the statistical Boltzmann probability proportional to $\exp(-\beta * n)$ </p>
+<p>While in state n, the particle is at position x with the quantum probability given by the wave function $psi_n(x)^2$.</p>
+<p>We are at finite temperature :
+$T = 1/\beta.$</p>
+<p>The particle can "move" in two ways. a position move, and an energy move. Both of them will be sampled with the metropolis hasting algorithm. This algorithm allows us to sample from an unknown probability distribution.</p>
+<p>The algorithm is a slight variation of markov chains. In a markov chain, a legal position is always accepted. In the M-H algorithm, it is accepted randomly, with a probability equal to $\frac{w_{new}}{w_{old}}$, with $w$  the "energy" of the position. That means that a move that result in a gain in energy is always accepted, while a move degrading the energy can happen but not always.</p>
+<div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Squared wave function of a particle at position x</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">psi_n_square</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">psi</span> <span class="o">=</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mf">0.25</span><span class="p">]</span>
+        <span class="n">psi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">psi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">psi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">psi</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span>
+                       <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">k</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">psi</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">psi</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Markov chain sampling</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="n">x</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span> <span class="c1"># x[0] = position, x[1] = energy level</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="mf">2.2</span>
+<span class="n">Rejection</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># 1/T</span>
+
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="o">/</span><span class="mi">2</span><span class="p">)):</span>
+
+    <span class="c1"># Position move</span>
+    <span class="n">x_old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># last element of x</span>
+    <span class="n">n_old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x_new</span> <span class="o">=</span> <span class="n">x_old</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span> <span class="c1"># generate new position</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">psi_n_square</span><span class="p">(</span><span class="n">x_old</span><span class="p">,</span> <span class="n">n_old</span><span class="p">)</span> <span class="o">&lt;</span>  <span class="n">psi_n_square</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">n_old</span><span class="p">)</span> <span class="p">:</span> <span class="c1"># check acceptance condition</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x_new</span><span class="p">,</span> <span class="n">n_old</span><span class="p">])</span> <span class="c1"># move accepted</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x_old</span><span class="p">,</span> <span class="n">n_old</span><span class="p">])</span> <span class="c1"># we stay at x_old </span>
+        <span class="n">Rejection</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Energy move</span>
+    <span class="n">x_old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># last element of x</span>
+    <span class="n">n_old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n_new</span> <span class="o">=</span> <span class="n">n_old</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1"># generate new energy level</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">psi_n_square</span><span class="p">(</span><span class="n">x_old</span><span class="p">,</span> <span class="n">n_old</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">psi_n_square</span><span class="p">(</span><span class="n">x_old</span><span class="p">,</span> <span class="n">n_new</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="o">*</span><span class="p">(</span><span class="n">n_new</span><span class="o">-</span><span class="n">n_old</span><span class="p">))</span> <span class="p">:</span> <span class="c1"># check acceptance condition</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x_old</span><span class="p">,</span> <span class="n">n_new</span><span class="p">])</span> <span class="c1"># move accepted</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x_old</span><span class="p">,</span> <span class="n">n_old</span><span class="p">])</span> <span class="c1"># we stay at x_old </span>
+        <span class="n">Rejection</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">Rejection</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>0.60231
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Theoretical result</span>
+<span class="sd">&quot;&quot;&quot;</span>        
+<span class="n">x_th</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">pi_th</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pi_class</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i_x</span> <span class="ow">in</span> <span class="n">x_th</span><span class="p">:</span>
+    <span class="n">pi_th</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">beta</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">i_x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">beta</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)))</span>
+    <span class="n">pi_class</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beta</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">i_x</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mf">2.0</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Results Plot</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_th</span><span class="p">,</span> <span class="n">pi_th</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_th</span><span class="p">,</span> <span class="n">pi_class</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">hist</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="p">)],</span> <span class="mi">50</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Position&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Particle position sampling $\beta$ = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="n">beta</span><span class="p">)</span>
+<span class="n">pylab</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Quantum probability distribution&#39;</span><span class="p">,</span> <span class="s1">&#39;Classical probability distribution&#39;</span><span class="p">,</span> <span class="s1">&#39;Markov chain sampling&#39;</span><span class="p">],</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="s1">&#39;x-small&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="png" src="output_36_1.png"></p>
+<p>We can see that the markov sampling allow us to emulate the probability distribution without knowing it explicitely. This would not have been possible with direct sampling.</p>
+        </section>
+
+        <br><br><br>
+
+        <footer>
+          <div class="adjust-width">
+            <div id="author-block" class="w3-light-grey w3-border">
+              <div id="author-info">
+                <a href=""><img style="width: 60px; height: 60px;" src="" onerror="this.src='theme/images/avatar.png'" alt="Avatar"></a>
+                <div style="margin-left: 20px; margin-top: 15px;">
+                  <a href=""><span id="author-name" class="w3-hover-text-dark-grey">François Ozenne</span></a>
+                  <p id="author-story"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br><br><br>
+
+          <p style="font-size:10pt; font-style: italic;">Did you like this article? Share it with your friends!</p>
+          <div id="share" class="share">
+            <a href="http://www.facebook.com/sharer.php?u=https%3A//ozennefr.github.io/mads.html&amp;t=Ozenne%20Francois%3A%20Markov%20and%20direct%20sampling" target="_blank" class="w3-btn w3-indigo">
+              <i class="fa fa-facebook"></i> <span>Facebook</span>
+            </a>
+            <a href="http://twitter.com/share?url=https%3A//ozennefr.github.io/mads.html&amp;text=Ozenne%20Francois%3A%20Markov%20and%20direct%20sampling" target="_blank" class="w3-btn w3-blue">
+              <i class="fa fa-twitter"></i> <span>Twitter</span>
+            </a>
+            <a href="https://plus.google.com/share?url=https%3A//ozennefr.github.io/mads.html" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="w3-btn w3-red">
+              <i class="fa fa-google-plus"></i> <span>Google</span>
+            </a>
+          </div>
+
+          <br><br><br>
+
+
+
+        </footer>
+      </div>
+    </article>
+
+
+    <footer id="footer">
+      <div id="footer-copyright" class="w3-center w3-small w3-text-grey w3-padding-48">
+        <span>&copy;  Ozenne Francois </span>
+      </div>
+    </footer>
+
+
+
+  </body>
+</html>
