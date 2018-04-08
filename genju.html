@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>A genetic algorithm in Jula &ndash; Ozenne Francois</title>
+    <title>A genetic algorithm in Julia &ndash; Ozenne Francois</title>
 
     <!-- Meta -->
     <meta name="description" content="Ozenne Francois &ndash; ">
@@ -16,14 +16,14 @@
     <meta property="article:published_time" content="2018-04-04" />
 
     <meta property="og:type" content="article"/>
-    <meta property="og:title" content="A genetic algorithm in Jula"/>
-    <meta property="og:description" content="In this article, we build a genetic algorithm from scratch while playing with some of the capabilities of the Julia Language"/>
+    <meta property="og:title" content="A genetic algorithm in Julia"/>
+    <meta property="og:description" content="In this article, we build a genetic algorithm from scratch while playing with some of the capabilities of the Julia Language."/>
     <meta property="og:site_name" content="Ozenne Francois" />
     <meta property="og:url" content="https://ozennefr.github.io/genju.html"/>
 
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="A genetic algorithm in Jula">
-    <meta name="twitter:description" content="In this article, we build a genetic algorithm from scratch while playing with some of the capabilities of the Julia Language">
+    <meta name="twitter:title" content="A genetic algorithm in Julia">
+    <meta name="twitter:description" content="In this article, we build a genetic algorithm from scratch while playing with some of the capabilities of the Julia Language.">
     <meta name="twitter:url" content="https://ozennefr.github.io/genju.html">
 
     <!-- Feed -->
@@ -64,7 +64,7 @@
 
     <article>
       <header class="w3-container col-main">
-        <h1>A genetic algorithm in Jula</h1>
+        <h1>A genetic algorithm in Julia</h1>
         <div class="post-info">
           <div class="w3-opacity w3-margin-right w3-margin-bottom" style="flex-grow: 1;">
             <span><time datetime="2018-04-04T09:30:00+02:00">mer. 04 avril 2018</time> in <a href="https://ozennefr.github.io/category/algorithms.html" title="All articles in category Algorithms">Algorithms</a></span>
@@ -92,13 +92,61 @@
       <div class="col-main w3-container">
         <section id="content">
           <h2>Why julia</h2>
+<p>Taken directly for Julialang official <a href="https://julialang.org/">website</a> : "<a href="http://julialang.org">Julia</a> is a high-level, high-performance dynamic programming language for numerical computing. It provides a sophisticated compiler, <a href="http://docs.julialang.org/en/stable/manual/parallel-computing/">distributed parallel execution</a>, numerical accuracy, and an <a href="https://docs.julialang.org/en/latest/#Standard-Library-1">extensive mathematical function library</a>.
+ Julia’s Base library, largely written in Julia itself, also integrates 
+mature, best-of-breed open source C and Fortran libraries for <a href="http://docs.julialang.org/en/stable/stdlib/linalg/">linear algebra</a>, <a href="http://docs.julialang.org/en/stable/stdlib/numbers/#random-numbers">random number generation</a>, <a href="http://docs.julialang.org/en/stable/stdlib/math/#signal-processing">signal processing</a>, and <a href="http://docs.julialang.org/en/stable/stdlib/strings/#strings">string processing</a>. In addition, the Julia developer community is contributing a number of <a href="http://pkg.julialang.org">external packages</a> through Julia’s built-in package manager at a rapid pace. <a href="https://github.com/JuliaLang/IJulia.jl">IJulia</a>, a collaboration between the <a href="http://jupyter.org">Jupyter</a> and Julia communities, provides a powerful browser-based graphical notebook interface to Julia."</p>
+<p>Here is a list of some of the reasons why I chose Julia :</p>
+<ul>
+<li>Faster than pyhon (nearly as fast as C in some cases)</li>
+<li>Types and abstract types</li>
+<li>fresh and usefull conventions (such as the "!" as a suffix, indicating a function modifies its argument(s)).</li>
+<li>Meta programming capabilities</li>
+<li>Macros</li>
+<li>Mocha, a julia implementation of the Cofee C++ deep learning framework (although it is not used here, it's a good enough reason to investigate the Julia language)</li>
+<li>Python friendly syntaxe, making the switch from python to julia easy</li>
+</ul>
+<p>This new language also comes with its disavantages, namely :</p>
+<ul>
+<li>
+<p>Lack of documentation regarding Plotting</p>
+</li>
+<li>
+<p>A bubbling package ecosystem with a lots of diversity and activity, which leads to the lack of standards.</p>
+</li>
+<li>
+<p>Sometimes obscure debug messages</p>
+</li>
+</ul>
+<p>​</p>
+<h2>Usefull packages</h2>
+<p>For this project, two packages will be used. The "Plots" package, which bundles a number of independent backends under a common interface. I'll use the gr backend. The second package, StatsBase handles statistics and sampling for us.</p>
 <div class="highlight"><pre><span></span><span class="k">using</span> <span class="n">Plots</span>
 <span class="k">using</span> <span class="n">StatsBase</span>
 <span class="n">gr</span><span class="p">()</span>
 </pre></div>
 
 
+<h2>Genetic algorithms</h2>
+<p>Genetic algorithms are a special class of optimisation methods, inspired by biology.</p>
+<p>The general skeleton of a GA is the following :</p>
+<ul>
+<li>Generate a population of potential solutions</li>
+<li>Until we reach the desired precision / generation</li>
+<li>for every individual<ul>
+<li>decode the chromosome</li>
+<li>evaluate the individual</li>
+</ul>
+</li>
+<li>Until we have a big enough new generation<ul>
+<li>select two individuals</li>
+<li>create two offspring from them</li>
+<li>mutate the offsprings</li>
+</ul>
+</li>
+</ul>
+<p>Each individual is represented by a chromosome, which encode the information necessary to evaluate him through the fitness function (the function to optimize). </p>
 <h2>Custom types</h2>
+<p>As established earlier, the type system of Julia is really powerful. Here, we use it in place of more traditionnal objects like dicts or structures.</p>
 <div class="highlight"><pre><span></span><span class="k">type</span> <span class="n">Problem</span>
     <span class="n">fitness</span> <span class="c">#fonction de n variables</span>
     <span class="n">numberOfVar</span><span class="o">::</span><span class="kt">Int64</span>
@@ -116,6 +164,7 @@
 
 
 <h2>Base methods override</h2>
+<p>Using custom types allow us to override base methods fo our use. </p>
 <div class="highlight"><pre><span></span><span class="n">Base</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">io</span><span class="o">::</span><span class="kt">IO</span><span class="p">,</span> <span class="n">ind</span><span class="o">::</span><span class="n">Individual</span><span class="p">)</span> <span class="o">=</span> <span class="n">print</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="s">&quot;id : &quot;</span><span class="p">,</span><span class="n">ind</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
     <span class="s">&quot;, generation :&quot;</span><span class="p">,</span> <span class="n">ind</span><span class="o">.</span><span class="n">generation</span><span class="p">,</span> 
     <span class="s">&quot;, genotype size :&quot;</span><span class="p">,</span> <span class="n">size</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">),</span> 
@@ -136,7 +185,9 @@
 </pre></div>
 
 
+<p>The first genetic operator, the crossover, is simply implemented as what's known as a "one point crossover".</p>
 <h2>Building blocks</h2>
+<p>The population is initialized using the Individual reator function. Fitness is initialized at <span class="math">\(\infty\)</span> as we want to minimize it.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">initPopulation</span><span class="p">(</span><span class="n">popSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">chromosomeSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">)</span>
     <span class="n">population</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">}(</span><span class="n">popSize</span><span class="p">);</span>
     <span class="k">for</span> <span class="n">iInd</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">popSize</span>
@@ -147,6 +198,7 @@
 </pre></div>
 
 
+<p>The decoding function is the most complicated part of the algorithm. The chromosomes we use are binary encoded, we firstly decode them as an unsigned integer, and then restrict the value to a float in the range we want.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">expressGenotype!</span><span class="p">(</span><span class="n">individual</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">)</span>
     <span class="n">genePerVar</span> <span class="o">=</span> <span class="n">round</span><span class="p">(</span><span class="kt">Int64</span><span class="p">,(</span><span class="n">size</span><span class="p">(</span><span class="n">individual</span><span class="o">.</span><span class="n">genotype</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span><span class="p">))</span>
     <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span><span class="p">)</span>
@@ -163,12 +215,14 @@
 </pre></div>
 
 
+<p>Because our fitness function is stored as a Julia function, it is trivial to evaluate an individual.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">evaluateIndividual!</span><span class="p">(</span><span class="n">individual</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">)</span>
     <span class="n">individual</span><span class="o">.</span><span class="n">fitness</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">fitness</span><span class="p">(</span><span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="o">...</span><span class="p">);</span>
 <span class="k">end</span>
 </pre></div>
 
 
+<p>The selection operation is implemented as a tournament selection. In this case, we select a few individuals (tournament size) at random in the population. Then, the tournament takes place : with the probability ptour, the best individual from the sampled population is selected. otherwise, we discard it and continue the tournament with the remaining individuals. </p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">selectIndividual</span><span class="p">(</span><span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">})</span>
     <span class="n">selected</span> <span class="o">=</span> <span class="n">Individual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="nb">Inf</span><span class="p">)</span>
     <span class="n">fitnesses</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="n">tournamentSize</span><span class="p">)</span>
@@ -193,6 +247,7 @@
 </pre></div>
 
 
+<p>When we want to select multiple individuals, we simply loop until the desired amount is samled.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">selectIndividuals</span><span class="p">(</span><span class="n">nInd</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">})</span>
     <span class="n">selected</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">}(</span><span class="n">nInd</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">nInd</span>
@@ -203,6 +258,7 @@
 </pre></div>
 
 
+<p>With our binary representation, the mutation operator becomes trivial. It is simply implemented as a random bitflip somewhere on the chromosome.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">mutate!</span><span class="p">(</span><span class="n">ind</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="kt">Float64</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">pmut</span>
@@ -214,6 +270,7 @@
 
 
 <h2>Plotting progress</h2>
+<p>To make sure our algorithm is running smoothly, and to monitor the convergence, we need to plot some statistics helping us tweak the numerous parameters.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">plotPopulation</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">,</span> <span class="n">fitnessHistory</span><span class="p">)</span>
 
     <span class="n">nVar</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span>
@@ -245,6 +302,7 @@
 
 
 <h2>The next generation</h2>
+<p>From all of the functions we already made, this function is pretty straightforward to implement.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">makeNewGeneration</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">gen</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> 
                             <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span>
                             <span class="n">elitism</span><span class="o">::</span><span class="kt">Bool</span><span class="p">,</span> <span class="n">bestInd</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">pcross</span><span class="o">::</span><span class="kt">Float64</span><span class="p">)</span>
@@ -279,6 +337,7 @@
 
 
 <h2>Genetic algorithm</h2>
+<p>Here is the final function, wich encaplsulate all of the steps above.</p>
 <div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">geneticOptimisation</span><span class="p">(</span><span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">;</span> <span class="n">chromosomeSize</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> 
                             <span class="n">popSize</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">years</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> 
                             <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -315,13 +374,14 @@
 
 
 <h2>Problem definition using expression</h2>
-<p>just for fun</p>
+<p>Just for fun, we use the metaprogramming capabilities of Julia to define our problem</p>
 <div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">eval</span><span class="p">(</span><span class="o">:</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">))</span>
 <span class="n">testPB</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
 
 <h2>Testing our algorithm</h2>
+<p>The algorithm is teste on the trivial <span class="math">\(y = x^2\)</span> case. </p>
 <div class="highlight"><pre><span></span><span class="n">pop</span><span class="p">,</span> <span class="n">bestFitness</span><span class="p">,</span> <span class="n">bestInd</span> <span class="o">=</span> <span class="n">geneticOptimisation</span><span class="p">(</span><span class="n">testPB</span><span class="p">,</span> <span class="n">years</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">carryOver</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">elitism</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span> <span class="n">pmut</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ptour</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">pcross</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">popSize</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">chromosomeSize</span><span class="o">=</span><span class="mi">64</span><span class="p">);</span>
 </pre></div>
 
@@ -335,10 +395,67 @@
 </pre></div>
 
 
+<p>We can see that we obtain a pretty good estimate of the minimum. The minimum fitness varies from generation to generation, displaying the randomness of the algorithm. Enabling elitism and carryover can help smoothing out these iregularities.</p>
 <h2>What's next</h2>
-<p>Genetic algorithms are a fun class of optimisation methods that really shines in two situations :
+<p>Obviously, this simple problem isn't really convincing. Genetic algorithms are a fun class of optimisation methods that really shines in two situations :
 - problems were the gradient is not defined (heterogeneous variable types, reinforcement learning)
 - problems with a lot of local minima.</p>
+<p>Here the aim was simply to have fun implementing this weird yet powerfull algorithm !</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
         </section>
 
         <br><br><br>
@@ -360,10 +477,10 @@
 
           <p style="font-size:10pt; font-style: italic;">Did you like this article? Share it with your friends!</p>
           <div id="share" class="share">
-            <a href="http://www.facebook.com/sharer.php?u=https%3A//ozennefr.github.io/genju.html&amp;t=Ozenne%20Francois%3A%20A%20genetic%20algorithm%20in%20Jula" target="_blank" class="w3-btn w3-indigo">
+            <a href="http://www.facebook.com/sharer.php?u=https%3A//ozennefr.github.io/genju.html&amp;t=Ozenne%20Francois%3A%20A%20genetic%20algorithm%20in%20Julia" target="_blank" class="w3-btn w3-indigo">
               <i class="fa fa-facebook"></i> <span>Facebook</span>
             </a>
-            <a href="http://twitter.com/share?url=https%3A//ozennefr.github.io/genju.html&amp;text=Ozenne%20Francois%3A%20A%20genetic%20algorithm%20in%20Jula" target="_blank" class="w3-btn w3-blue">
+            <a href="http://twitter.com/share?url=https%3A//ozennefr.github.io/genju.html&amp;text=Ozenne%20Francois%3A%20A%20genetic%20algorithm%20in%20Julia" target="_blank" class="w3-btn w3-blue">
               <i class="fa fa-twitter"></i> <span>Twitter</span>
             </a>
             <a href="https://plus.google.com/share?url=https%3A//ozennefr.github.io/genju.html" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="w3-btn w3-red">
