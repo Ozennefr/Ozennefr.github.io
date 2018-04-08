@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>A genetic algorithm in Jula &ndash; Ozenne Francois</title>
+
+    <!-- Meta -->
+    <meta name="description" content="Ozenne Francois &ndash; ">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Social -->
+    <meta property="article:author" content="François Ozenne" />
+    <meta property="article:section" content="Algorithms" />
+    <meta property="article:published_time" content="2018-04-04" />
+
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="A genetic algorithm in Jula"/>
+    <meta property="og:description" content="In this article, we build a genetic algorithm from scratch while playing with some of the capabilities of the Julia Language"/>
+    <meta property="og:site_name" content="Ozenne Francois" />
+    <meta property="og:url" content="https://ozennefr.github.io/genju.html"/>
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="A genetic algorithm in Jula">
+    <meta name="twitter:description" content="In this article, we build a genetic algorithm from scratch while playing with some of the capabilities of the Julia Language">
+    <meta name="twitter:url" content="https://ozennefr.github.io/genju.html">
+
+    <!-- Feed -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:regular,bold">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/w3.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/jqcloud.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/pygments-highlight-github.css">
+
+    <!-- Icon -->
+
+    <!-- JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ozennefr.github.io/theme/js/jqcloud.min.js"></script>
+  </head>
+
+  <body>
+    <div class="w3-row w3-card w3-white">
+      <header id="header">
+        <a href="https://ozennefr.github.io" id="header-logo" title="Home">OF</a>
+        <nav id="header-menu">
+          <ul>
+            <li><a href="https://ozennefr.github.io/pages/about.html">About</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" style="font-weight: bold;"><a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/cv-entries.html">CV entries</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a></li>
+          </ul>
+        </nav>
+      </header>
+    </div>
+
+
+
+    <br><br><br>
+
+    <article>
+      <header class="w3-container col-main">
+        <h1>A genetic algorithm in Jula</h1>
+        <div class="post-info">
+          <div class="w3-opacity w3-margin-right w3-margin-bottom" style="flex-grow: 1;">
+            <span><time datetime="2018-04-04T09:30:00+02:00">mer. 04 avril 2018</time> in <a href="https://ozennefr.github.io/category/algorithms.html" title="All articles in category Algorithms">Algorithms</a></span>
+          </div>
+          <div>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/julia.html" title="All articles with Julia tag">#julia</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/genetic.html" title="All articles with Genetic tag">#genetic</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/algorithm.html" title="All articles with Algorithm tag">#algorithm</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/optimisation.html" title="All articles with Optimisation tag">#optimisation</a>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <br>
+
+
+      <div class="col-main w3-container">
+        <section id="content">
+          <h2>Why julia</h2>
+<div class="highlight"><pre><span></span><span class="k">using</span> <span class="n">Plots</span>
+<span class="k">using</span> <span class="n">StatsBase</span>
+<span class="n">gr</span><span class="p">()</span>
+</pre></div>
+
+
+<h2>Custom types</h2>
+<div class="highlight"><pre><span></span><span class="k">type</span> <span class="n">Problem</span>
+    <span class="n">fitness</span> <span class="c">#fonction de n variables</span>
+    <span class="n">numberOfVar</span><span class="o">::</span><span class="kt">Int64</span>
+    <span class="n">range</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span>
+<span class="k">end</span>
+
+<span class="k">type</span> <span class="n">Individual</span>
+    <span class="n">id</span><span class="o">::</span><span class="kt">Int64</span>
+    <span class="n">generation</span><span class="o">::</span><span class="kt">Int64</span>
+    <span class="n">genotype</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Int64</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span>
+    <span class="n">phenotype</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span>
+    <span class="n">fitness</span><span class="o">::</span><span class="kt">Float64</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<h2>Base methods override</h2>
+<div class="highlight"><pre><span></span><span class="n">Base</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">io</span><span class="o">::</span><span class="kt">IO</span><span class="p">,</span> <span class="n">ind</span><span class="o">::</span><span class="n">Individual</span><span class="p">)</span> <span class="o">=</span> <span class="n">print</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="s">&quot;id : &quot;</span><span class="p">,</span><span class="n">ind</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="s">&quot;, generation :&quot;</span><span class="p">,</span> <span class="n">ind</span><span class="o">.</span><span class="n">generation</span><span class="p">,</span> 
+    <span class="s">&quot;, genotype size :&quot;</span><span class="p">,</span> <span class="n">size</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">),</span> 
+    <span class="s">&quot;, random gene :&quot;</span><span class="p">,</span> <span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="k">end</span><span class="p">)],</span>
+    <span class="s">&quot;, phenotype :&quot;</span><span class="p">,</span> <span class="n">ind</span><span class="o">.</span><span class="n">phenotype</span><span class="p">,</span>
+    <span class="s">&quot;, fitness :&quot;</span><span class="p">,</span> <span class="n">ind</span><span class="o">.</span><span class="n">fitness</span><span class="p">,</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+<span class="c">#crossover = ind*ind</span>
+<span class="k">function</span> <span class="n">Base</span><span class="o">.:*</span><span class="p">(</span><span class="n">pere</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">mere</span><span class="o">::</span><span class="n">Individual</span><span class="p">)</span>
+    <span class="c">#1 points crossover</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">pere</span><span class="o">.</span><span class="n">genotype</span><span class="p">)))</span>
+    <span class="n">chr1</span> <span class="o">=</span> <span class="p">[</span><span class="n">pere</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">point</span><span class="p">]</span><span class="o">...</span><span class="p">,</span> <span class="n">mere</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">point</span><span class="o">:</span><span class="k">end</span><span class="p">]</span><span class="o">...</span><span class="p">]</span>
+    <span class="n">chr2</span> <span class="o">=</span> <span class="p">[</span><span class="n">mere</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">point</span><span class="p">]</span><span class="o">...</span><span class="p">,</span> <span class="n">pere</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">point</span><span class="o">:</span><span class="k">end</span><span class="p">]</span><span class="o">...</span><span class="p">]</span>
+    <span class="n">offspring1</span> <span class="o">=</span> <span class="n">Individual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">chr1</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">Inf</span><span class="p">)</span>
+    <span class="n">offspring2</span> <span class="o">=</span> <span class="n">Individual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">chr2</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">Inf</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">offspring1</span><span class="p">,</span> <span class="n">offspring2</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<h2>Building blocks</h2>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">initPopulation</span><span class="p">(</span><span class="n">popSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">chromosomeSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">)</span>
+    <span class="n">population</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">}(</span><span class="n">popSize</span><span class="p">);</span>
+    <span class="k">for</span> <span class="n">iInd</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">popSize</span>
+        <span class="n">population</span><span class="p">[</span><span class="n">iInd</span><span class="p">]</span> <span class="o">=</span> <span class="n">Individual</span><span class="p">(</span><span class="n">iInd</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">rand</span><span class="p">(</span><span class="kt">Bool</span><span class="p">,</span> <span class="p">(</span><span class="n">chromosomeSize</span><span class="p">)),[],</span><span class="nb">Inf</span><span class="p">);</span>
+    <span class="k">end</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">population</span><span class="p">)</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">expressGenotype!</span><span class="p">(</span><span class="n">individual</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">)</span>
+    <span class="n">genePerVar</span> <span class="o">=</span> <span class="n">round</span><span class="p">(</span><span class="kt">Int64</span><span class="p">,(</span><span class="n">size</span><span class="p">(</span><span class="n">individual</span><span class="o">.</span><span class="n">genotype</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span><span class="p">))</span>
+    <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">iVar</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span>
+        <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">iGene</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">genePerVar</span>
+            <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">+=</span> <span class="n">individual</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="n">iGene</span><span class="o">+</span><span class="p">(</span><span class="n">iVar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">genePerVar</span><span class="p">]</span><span class="o">*</span><span class="mf">2.0</span><span class="o">^</span><span class="p">(</span><span class="n">iGene</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">end</span>
+        <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">problem</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">problem</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="mf">2.0</span><span class="o">.^</span><span class="p">(</span><span class="o">-</span><span class="n">genePerVar</span><span class="p">))</span> <span class="o">.*</span>
+                                    <span class="mf">2.0</span><span class="o">^</span><span class="p">(</span><span class="o">-</span><span class="n">genePerVar</span><span class="p">)</span><span class="o">.*</span><span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">evaluateIndividual!</span><span class="p">(</span><span class="n">individual</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">)</span>
+    <span class="n">individual</span><span class="o">.</span><span class="n">fitness</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">fitness</span><span class="p">(</span><span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="o">...</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">selectIndividual</span><span class="p">(</span><span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">})</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">Individual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="nb">Inf</span><span class="p">)</span>
+    <span class="n">fitnesses</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="n">tournamentSize</span><span class="p">)</span>
+    <span class="n">subPop</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">tournamentSize</span>
+        <span class="n">fitnesses</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">subPop</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">fitness</span>
+    <span class="k">end</span>
+    <span class="n">notSelected</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="k">while</span> <span class="n">notSelected</span>
+        <span class="n">mxval</span><span class="p">,</span> <span class="n">mxindx</span> <span class="o">=</span> <span class="n">findmin</span><span class="p">(</span><span class="n">fitnesses</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="kt">Float64</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ptour</span>
+            <span class="n">notSelected</span> <span class="o">=</span> <span class="kc">false</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">subPop</span><span class="p">[</span><span class="n">mxindx</span><span class="p">]</span>
+        <span class="k">elseif</span> <span class="n">length</span><span class="p">(</span><span class="n">fitnesses</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">subPop</span><span class="p">[</span><span class="n">mxindx</span><span class="p">]</span>
+        <span class="k">else</span>
+            <span class="n">deleteat!</span><span class="p">(</span><span class="n">fitnesses</span><span class="p">,</span> <span class="n">mxindx</span><span class="p">)</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">selectIndividuals</span><span class="p">(</span><span class="n">nInd</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">})</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">}(</span><span class="n">nInd</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">nInd</span>
+        <span class="n">selected</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">selectIndividual</span><span class="p">(</span><span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">mutate!</span><span class="p">(</span><span class="n">ind</span><span class="o">::</span><span class="n">Individual</span><span class="p">,</span> <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="kt">Float64</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">pmut</span>
+            <span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="mi">2</span> <span class="c">#bitflip</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+
+
+<h2>Plotting progress</h2>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">plotPopulation</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">,</span> <span class="n">fitnessHistory</span><span class="p">)</span>
+
+    <span class="n">nVar</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span>
+    <span class="n">nIndiv</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+
+    <span class="n">ph</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">2</span><span class="p">}(</span><span class="n">nIndiv</span><span class="p">,</span> <span class="n">nVar</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">}(</span><span class="n">nIndiv</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Int64</span><span class="p">,</span><span class="mi">1</span><span class="p">}(</span><span class="n">nIndiv</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">nIndiv</span>
+        <span class="n">ph</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="o">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">phenotype</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fitness</span>
+        <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">generation</span>
+    <span class="k">end</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">histogram</span><span class="p">(</span><span class="n">ph</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="n">i</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;y</span><span class="si">$i</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">nVar</span><span class="p">]</span>
+    <span class="n">y_plot</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="o">...</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nVar</span><span class="p">))</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;fitness distribution&quot;</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">gp</span> <span class="o">=</span> <span class="n">histogram</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;generation distribution&quot;</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">statp</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">gp</span><span class="p">,</span> <span class="n">layout</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">fitnessHistory</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;fitness history&quot;</span><span class="p">)</span>
+    <span class="n">fplot</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">statp</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">y_plot</span><span class="p">,</span> <span class="n">fplot</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c">#scatter(ph[:,1],ph[:,2],zcolor=f)</span>
+    <span class="n">IJulia</span><span class="o">.</span><span class="n">clear_output</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="n">plot!</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">false</span><span class="p">)</span> <span class="o">|&gt;</span> <span class="n">display</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<h2>The next generation</h2>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">makeNewGeneration</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">gen</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> 
+                            <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span>
+                            <span class="n">elitism</span><span class="o">::</span><span class="kt">Bool</span><span class="p">,</span> <span class="n">bestInd</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">pcross</span><span class="o">::</span><span class="kt">Float64</span><span class="p">)</span>
+    <span class="n">popSize</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+    <span class="n">newGen</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">}(</span><span class="n">popSize</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">carryOver</span> <span class="o">!=</span> <span class="mf">0.</span>
+        <span class="n">newGen</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">)]</span> <span class="o">=</span> <span class="n">selectIndividuals</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">),</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="o">:</span><span class="n">popSize</span>
+        <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="kt">Float64</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">pcross</span>
+            <span class="n">offspring1</span><span class="p">,</span> <span class="n">offspring2</span>  <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">selectIndividuals</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+        <span class="k">else</span>
+            <span class="n">parents</span> <span class="o">=</span> <span class="n">selectIndividuals</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
+            <span class="n">offspring1</span><span class="p">,</span> <span class="n">offspring2</span> <span class="o">=</span> <span class="p">(</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">end</span>
+        <span class="n">offspring1</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="n">gen</span><span class="o">*</span><span class="n">popSize</span>
+        <span class="n">offspring1</span><span class="o">.</span><span class="n">generation</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">gen</span>
+        <span class="n">offspring2</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="n">gen</span><span class="o">*</span><span class="n">popSize</span>
+        <span class="n">offspring2</span><span class="o">.</span><span class="n">generation</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">gen</span>
+        <span class="n">mutate!</span><span class="p">(</span><span class="n">offspring1</span><span class="p">,</span> <span class="n">pmut</span><span class="p">)</span>
+        <span class="n">mutate!</span><span class="p">(</span><span class="n">offspring2</span><span class="p">,</span> <span class="n">pmut</span><span class="p">)</span>
+        <span class="n">newGen</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">offspring1</span>
+        <span class="n">newGen</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">offspring2</span>
+    <span class="k">end</span>
+    <span class="k">if</span> <span class="n">elitism</span>
+        <span class="n">newGen</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">pop</span><span class="p">[</span><span class="n">bestInd</span><span class="p">]</span>
+    <span class="k">end</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">newGen</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="p">;</span> 
+</pre></div>
+
+
+<h2>Genetic algorithm</h2>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">geneticOptimisation</span><span class="p">(</span><span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">;</span> <span class="n">chromosomeSize</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> 
+                            <span class="n">popSize</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">years</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> 
+                            <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                            <span class="n">carryOver</span><span class="o">::</span><span class="kt">Float64</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+                            <span class="n">elitism</span><span class="o">::</span><span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span> <span class="n">pcross</span><span class="o">::</span><span class="kt">Float64</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">pop</span> <span class="o">=</span> <span class="n">initPopulation</span><span class="p">(</span><span class="n">popSize</span><span class="p">,</span> <span class="n">chromosomeSize</span><span class="p">)</span>
+    <span class="n">fitnessHistory</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">}(</span><span class="n">years</span><span class="p">)</span>
+    <span class="n">bestFitness</span> <span class="o">=</span> <span class="nb">Inf</span>
+    <span class="n">bestIndiv</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fill!</span><span class="p">(</span><span class="n">fitnessHistory</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">gen</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">years</span>
+        <span class="n">bestFitness</span> <span class="o">=</span> <span class="nb">Inf</span>
+        <span class="n">bestIndiv</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">popSize</span>
+            <span class="n">expressGenotype!</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">problem</span><span class="p">);</span>
+            <span class="n">evaluateIndividual!</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">problem</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fitness</span> <span class="o">&lt;</span> <span class="n">bestFitness</span>
+                <span class="n">bestFitness</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fitness</span>
+                <span class="n">bestIndiv</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">end</span>
+        <span class="k">end</span>
+        <span class="n">fitnessHistory</span><span class="p">[</span><span class="n">gen</span><span class="p">]</span> <span class="o">=</span> <span class="n">bestFitness</span>
+        <span class="k">if</span> <span class="n">gen</span><span class="o">%</span><span class="mi">100</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">plotPopulation</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">problem</span><span class="p">,</span> <span class="n">fitnessHistory</span><span class="p">)</span>
+        <span class="k">end</span>
+        <span class="k">if</span> <span class="n">gen</span> <span class="o">&lt;</span><span class="n">years</span>
+            <span class="n">pop</span> <span class="o">=</span> <span class="n">makeNewGeneration</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">gen</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">carryOver</span><span class="p">,</span> <span class="n">pmut</span><span class="p">,</span> <span class="n">elitism</span><span class="p">,</span> <span class="n">bestIndiv</span><span class="p">,</span> <span class="n">pcross</span><span class="p">)</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">bestFitness</span><span class="p">,</span> <span class="n">bestIndiv</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="p">;</span>
+</pre></div>
+
+
+<h2>Problem definition using expression</h2>
+<p>just for fun</p>
+<div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">eval</span><span class="p">(</span><span class="o">:</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">testPB</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<h2>Testing our algorithm</h2>
+<div class="highlight"><pre><span></span><span class="n">pop</span><span class="p">,</span> <span class="n">bestFitness</span><span class="p">,</span> <span class="n">bestInd</span> <span class="o">=</span> <span class="n">geneticOptimisation</span><span class="p">(</span><span class="n">testPB</span><span class="p">,</span> <span class="n">years</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">carryOver</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">elitism</span><span class="o">=</span><span class="kc">false</span><span class="p">,</span> <span class="n">pmut</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ptour</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">pcross</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">popSize</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">chromosomeSize</span><span class="o">=</span><span class="mi">64</span><span class="p">);</span>
+</pre></div>
+
+
+<p><img alt="svg" src="https://ozennefr.github.io/images/ag/output_6_0.svg"></p>
+<div class="highlight"><pre><span></span><span class="n">bestFitness</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>6.09582873921978e-5
+</pre></div>
+
+
+<h2>What's next</h2>
+<p>Genetic algorithms are a fun class of optimisation methods that really shines in two situations :
+- problems were the gradient is not defined (heterogeneous variable types, reinforcement learning)
+- problems with a lot of local minima.</p>
+        </section>
+
+        <br><br><br>
+
+        <footer>
+          <div class="adjust-width">
+            <div id="author-block" class="w3-light-grey w3-border">
+              <div id="author-info">
+                <a href=""><img style="width: 60px; height: 60px;" src="" onerror="this.src='theme/images/avatar.png'" alt="Avatar"></a>
+                <div style="margin-left: 20px; margin-top: 15px;">
+                  <a href=""><span id="author-name" class="w3-hover-text-dark-grey">François Ozenne</span></a>
+                  <p id="author-story"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br><br><br>
+
+          <p style="font-size:10pt; font-style: italic;">Did you like this article? Share it with your friends!</p>
+          <div id="share" class="share">
+            <a href="http://www.facebook.com/sharer.php?u=https%3A//ozennefr.github.io/genju.html&amp;t=Ozenne%20Francois%3A%20A%20genetic%20algorithm%20in%20Jula" target="_blank" class="w3-btn w3-indigo">
+              <i class="fa fa-facebook"></i> <span>Facebook</span>
+            </a>
+            <a href="http://twitter.com/share?url=https%3A//ozennefr.github.io/genju.html&amp;text=Ozenne%20Francois%3A%20A%20genetic%20algorithm%20in%20Jula" target="_blank" class="w3-btn w3-blue">
+              <i class="fa fa-twitter"></i> <span>Twitter</span>
+            </a>
+            <a href="https://plus.google.com/share?url=https%3A//ozennefr.github.io/genju.html" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="w3-btn w3-red">
+              <i class="fa fa-google-plus"></i> <span>Google</span>
+            </a>
+          </div>
+
+          <br><br><br>
+
+
+
+        </footer>
+      </div>
+    </article>
+
+
+    <footer id="footer">
+      <div id="footer-copyright" class="w3-center w3-small w3-text-grey w3-padding-48">
+        <span>&copy;  Ozenne Francois </span>
+      </div>
+    </footer>
+
+
+
+  </body>
+</html>
