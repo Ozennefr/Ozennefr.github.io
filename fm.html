@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Bode diagrams and sensors in Julia &ndash; Ozenne Francois</title>
+
+    <!-- Meta -->
+    <meta name="description" content="Ozenne Francois &ndash; ">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Social -->
+    <meta property="article:author" content="François Ozenne" />
+    <meta property="article:section" content="Algorithms" />
+    <meta property="article:published_time" content="2018-04-04" />
+
+    <meta property="og:type" content="article"/>
+    <meta property="og:title" content="Bode diagrams and sensors in Julia"/>
+    <meta property="og:description" content="In this article, I use Julia to generate a family of composite filters and plot their bode diagrams. I make good use of the meta programing capabilities of Julia."/>
+    <meta property="og:site_name" content="Ozenne Francois" />
+    <meta property="og:url" content="https://ozennefr.github.io/fm.html"/>
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Bode diagrams and sensors in Julia">
+    <meta name="twitter:description" content="In this article, I use Julia to generate a family of composite filters and plot their bode diagrams. I make good use of the meta programing capabilities of Julia.">
+    <meta name="twitter:url" content="https://ozennefr.github.io/fm.html">
+
+    <!-- Feed -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:regular,bold">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/w3.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/jqcloud.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/pygments-highlight-github.css">
+
+    <!-- Icon -->
+
+    <!-- JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://ozennefr.github.io/theme/js/jqcloud.min.js"></script>
+  </head>
+
+  <body>
+    <div class="w3-row w3-card w3-white">
+      <header id="header">
+        <a href="https://ozennefr.github.io" id="header-logo" title="Home">OF</a>
+        <nav id="header-menu">
+          <ul>
+            <li><a href="https://ozennefr.github.io/pages/about.html">About</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" style="font-weight: bold;"><a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/cv-entries.html">CV entries</a></li>
+            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a></li>
+          </ul>
+        </nav>
+      </header>
+    </div>
+
+
+
+    <br><br><br>
+
+    <article>
+      <header class="w3-container col-main">
+        <h1>Bode diagrams and sensors in Julia</h1>
+        <div class="post-info">
+          <div class="w3-opacity w3-margin-right w3-margin-bottom" style="flex-grow: 1;">
+            <span><time datetime="2018-04-04T09:30:00+02:00">mer. 04 avril 2018</time> in <a href="https://ozennefr.github.io/category/algorithms.html" title="All articles in category Algorithms">Algorithms</a></span>
+          </div>
+          <div>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/julia.html" title="All articles with Julia tag">#julia</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/sensors.html" title="All articles with Sensors tag">#sensors</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/bode-diagram.html" title="All articles with Bode Diagram tag">#bode diagram</a>
+            </span>
+            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
+              <a href="https://ozennefr.github.io/tag/metaprogramming.html" title="All articles with Metaprogramming tag">#metaprogramming</a>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <br>
+
+
+      <div class="col-main w3-container">
+        <section id="content">
+          <h2>Defining simples filters as Julia expressions</h2>
+<p>I chose to represent filters with Julia expressions for two main reasons :
+- I just wanted to play with meta programming
+- It allows me to compose filters easily to generate a very diverse familly of filters</p>
+<p>When we create a filter through it's building function, we generate a Julia expression (preceeded by :), which is simply a piece of code waiting to be evaluated. This allow us to put the parameters directly in the expression, instead of carrying them along every time we use the function. In an expression, the '$' token signifies that the value should be replaced by it's current value.</p>
+<p>To make the filter, we use the "makefilter" function to transform the expression into an executable function taking <span class="math">\(\omega\)</span> as a parameter.</p>
+<div class="highlight"><pre><span></span><span class="n">passeBasO1</span><span class="p">(</span><span class="n">ωc</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">im</span><span class="o">*</span><span class="p">(</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="p">)));</span> <span class="c">#low-pass first order</span>
+<span class="n">passeBasO2</span><span class="p">(</span><span class="n">ωc</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="mi">2</span><span class="o">*$</span><span class="n">z</span><span class="o">*</span><span class="nb">im</span><span class="o">*</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="o">-</span><span class="p">(</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">));</span> <span class="c">#low-pass second order</span>
+<span class="n">derivateur</span><span class="p">(</span><span class="n">ωc</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="nb">im</span><span class="o">*</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="p">);</span> <span class="c">#derivative filter</span>
+<span class="n">integrateur</span><span class="p">(</span><span class="n">ωc</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="o">$</span><span class="n">ωc</span><span class="o">/</span><span class="p">(</span><span class="nb">im</span><span class="o">*</span><span class="n">ω</span><span class="p">));</span> <span class="c">#integration filter</span>
+<span class="n">gainStatique</span><span class="p">(</span><span class="n">gDB</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="mi">10</span><span class="o">^</span><span class="p">(</span><span class="o">$</span><span class="n">gDB</span><span class="o">/</span><span class="mi">20</span><span class="p">));</span> <span class="c">#static gain</span>
+<span class="n">makeFilter</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">=</span> <span class="n">eval</span><span class="p">(</span><span class="o">:</span><span class="p">(</span><span class="n">ω</span><span class="o">-&gt;</span><span class="p">(</span><span class="o">$</span><span class="n">f</span><span class="p">)));</span> 
+</pre></div>
+
+
+<p>For example, the instruction :</p>
+<div class="highlight"><pre><span></span><span class="n">f1</span> <span class="o">=</span> <span class="n">passeBasO1</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+
+<p>returns :</p>
+<div class="highlight"><pre><span></span><span class="o">:</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">im</span><span class="o">*</span><span class="p">(</span><span class="n">ω</span><span class="o">/</span><span class="mi">10</span><span class="p">)))</span>
+</pre></div>
+
+
+<p>Only leaving <span class="math">\(\omega\)</span> as a variable. Then, the expression :</p>
+<p>For example, the instruction :</p>
+<div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">makeFilter</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>returns the function :</p>
+<div class="highlight"><pre><span></span><span class="n">f</span><span class="p">(</span><span class="n">ω</span><span class="p">)</span><span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">im</span><span class="o">*</span><span class="p">(</span><span class="n">ω</span><span class="o">/</span><span class="mi">10</span><span class="p">)))</span>
+</pre></div>
+
+
+<h2>Composing filters</h2>
+<p>Using expressions allows us to compose filters before transforming them into functions. A composite filter is just the product of it's element.</p>
+<p>The high pass filter is the simplest composite filter, it is simply a low pass composed with a derivative filter.</p>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">filtreCompose</span><span class="p">(</span><span class="n">filtres</span><span class="o">...</span><span class="p">;</span><span class="nb">e</span><span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="kp">in</span> <span class="n">filtres</span> <span class="nb">e</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="o">$</span><span class="nb">e</span><span class="o">*$</span><span class="n">f</span><span class="p">)</span> <span class="k">end</span>
+    <span class="k">return</span><span class="p">(</span><span class="nb">e</span><span class="p">)</span>
+<span class="k">end</span><span class="p">;</span>
+
+<span class="n">passeHautO1</span><span class="p">(</span><span class="n">ωc</span><span class="p">)</span> <span class="o">=</span> <span class="n">filtreCompose</span><span class="p">(</span><span class="n">passeBasO1</span><span class="p">(</span><span class="n">ωc</span><span class="p">),</span><span class="n">derivateur</span><span class="p">(</span><span class="n">ωc</span><span class="p">));</span> <span class="c"># high pass</span>
+</pre></div>
+
+
+<h2>Plotting utilities</h2>
+<p>First of all, we need a function that allow us tu use decades as a grid for the log-log plot.</p>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">decades</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+    <span class="n">dec</span> <span class="o">=</span> <span class="kt">Real</span><span class="p">[]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="kt">AbstractString</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="n">start</span><span class="o">:</span><span class="n">stop</span>
+        <span class="n">subdec</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span><span class="o">.*</span><span class="mi">10</span><span class="o">^</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">labeldec</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;1E</span><span class="si">$i</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">]</span>
+        <span class="n">dec</span> <span class="o">=</span> <span class="n">vcat</span><span class="p">(</span><span class="n">dec</span><span class="p">,</span> <span class="n">subdec</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">vcat</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">labeldec</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">dec</span><span class="p">,</span><span class="n">labels</span><span class="p">)</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+
+
+<p>Then, we can plot the bode diagram.</p>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">plotTransfert</span><span class="p">(</span><span class="n">ft</span><span class="p">;</span> <span class="n">ω</span><span class="o">=</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span><span class="mi">5000</span><span class="p">),</span> <span class="n">gainStatique</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bandePassante</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">ft</span><span class="p">,</span><span class="n">ω</span><span class="p">);</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="mi">20</span><span class="o">*</span><span class="n">log10</span><span class="o">.</span><span class="p">(</span><span class="n">abs</span><span class="o">.</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">phase</span> <span class="o">=</span> <span class="n">angle</span><span class="o">.</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">ω</span><span class="p">,</span> <span class="n">gain</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;réponse&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bandePassante</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">bandePassante</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span>
+        <span class="n">plot!</span><span class="p">(</span><span class="n">ω</span><span class="p">[</span><span class="n">bandePassante</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.&gt;</span><span class="n">ω</span><span class="o">.&gt;</span><span class="n">bandePassante</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="n">gain</span><span class="p">[</span><span class="n">bandePassante</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.&gt;</span><span class="n">ω</span><span class="o">.&gt;</span><span class="n">bandePassante</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+            <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="n">gain</span><span class="p">[</span><span class="k">end</span><span class="p">],</span><span class="o">:</span><span class="n">orange</span><span class="p">),</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;bande passante    &quot;</span><span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="k">if</span> <span class="n">gainStatique</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="n">gainStatiques</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">=</span><span class="n">eval</span><span class="p">(</span><span class="n">gainStatique</span><span class="p">)</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="mi">20</span><span class="o">*</span><span class="n">log10</span><span class="o">.</span><span class="p">(</span><span class="n">abs</span><span class="o">.</span><span class="p">(</span><span class="n">map</span><span class="p">(</span><span class="n">gainStatiques</span><span class="p">,</span><span class="n">ω</span><span class="p">)))</span>
+        <span class="n">plot!</span><span class="p">(</span><span class="n">ω</span><span class="p">[</span><span class="n">gain</span><span class="o">.&gt;</span><span class="n">gs</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span><span class="n">gain</span><span class="p">[</span><span class="n">gain</span><span class="o">.&gt;</span><span class="n">gs</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;BP norme&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=:</span><span class="n">red</span><span class="p">)</span>
+        <span class="n">plot!</span><span class="p">(</span><span class="n">ω</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;gain statique&quot;</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="n">plot!</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s">&quot;Fonction de transfert ft1&quot;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="s">&quot;Gain [dB]&quot;</span><span class="p">)</span>
+    <span class="n">plot!</span><span class="p">(</span><span class="n">legend</span><span class="o">=:</span><span class="n">left</span><span class="p">)</span>
+
+    <span class="n">ϕ</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">ω</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+    <span class="n">plot!</span><span class="p">(</span><span class="n">xlabel</span> <span class="o">=</span> <span class="s">&quot;Pulsation [rad/s]&quot;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="s">&quot;Déphasage [rad]&quot;</span><span class="p">)</span>
+    <span class="n">plot!</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="kc">false</span><span class="p">)</span>
+
+    <span class="n">plot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ϕ</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">plot!</span><span class="p">(</span><span class="n">xscale</span> <span class="o">=</span> <span class="o">:</span><span class="n">log</span><span class="p">)</span>
+    <span class="n">xticks!</span><span class="p">(</span><span class="n">decades</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+<span class="k">end</span><span class="p">;</span>
+</pre></div>
+
+
+<h2>Defining a piezo-electric acceleration sensor</h2>
+<p>To test our program, we try to model a piezo electric acceleration sensor. This sensor behaves like a second order low-pass (due to mechanical resonnance) combined with a first order high pass (due to the electronic amplification).</p>
+<div class="highlight"><pre><span></span><span class="n">ph1</span> <span class="o">=</span> <span class="n">passeHautO1</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="p">);</span>
+<span class="n">pb1</span> <span class="o">=</span> <span class="n">passeBasO2</span><span class="p">(</span><span class="mf">10E3</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="p">,</span> <span class="mf">0.02999</span><span class="p">);</span>
+<span class="n">g1</span> <span class="o">=</span> <span class="n">gainStatique</span><span class="p">(</span><span class="o">-</span><span class="mf">21.41</span><span class="p">);</span> <span class="c">#db</span>
+
+<span class="n">ft1</span> <span class="o">=</span> <span class="n">makeFilter</span><span class="p">(</span><span class="n">filtreCompose</span><span class="p">(</span><span class="n">ph1</span><span class="p">,</span> <span class="n">pb1</span><span class="p">,</span> <span class="n">g1</span><span class="p">));</span>
+</pre></div>
+
+
+<h2>Plotting the bode diagram</h2>
+<div class="highlight"><pre><span></span><span class="n">plotTransfert</span><span class="p">(</span><span class="n">ft1</span><span class="p">,</span> <span class="n">gainStatique</span><span class="o">=</span><span class="n">g1</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="svg" src="https://ozennefr.github.io/images/FM/output_7_0.svg"></p>
+<p>The bode diagram look like what we expect.</p>
+<h2>Plotting the sensor response</h2>
+<p>We can now plot the sensor response to a sinusoidal signal of amplitude <span class="math">\(4.5~g\)</span> and frequency <span class="math">\(f = 150 ~Hz\)</span>. We also plot the numerical signal after a conversion in a CAN with a resolution of only 4 bytes.</p>
+<div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="mi">150</span><span class="p">;</span>
+<span class="n">T</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">f</span><span class="p">;</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">T</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
+<span class="n">q</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">^</span><span class="mi">4</span><span class="p">;</span> <span class="c"># quantum</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">gamma</span> <span class="o">=</span> <span class="mf">4.5</span><span class="o">.*</span><span class="n">exp</span><span class="o">.</span><span class="p">(</span><span class="nb">im</span><span class="o">*</span><span class="mi">2</span><span class="nb">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">);</span>
+<span class="n">vout</span> <span class="o">=</span> <span class="n">real</span><span class="o">.</span><span class="p">(</span><span class="n">gamma</span> <span class="o">.*</span> <span class="n">ft1</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">π</span><span class="o">*</span><span class="n">f</span><span class="p">));</span>
+<span class="n">vnum</span> <span class="o">=</span> <span class="n">round</span><span class="o">.</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span><span class="n">vout</span><span class="o">/</span><span class="n">q</span><span class="p">);</span>
+
+<span class="n">pg</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">real</span><span class="p">(</span><span class="n">gamma</span><span class="p">),</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&quot;Acceleration [g]&quot;</span><span class="p">)</span>
+<span class="n">pvo</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">vout</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&quot;Signal [V]&quot;</span><span class="p">)</span>
+<span class="n">pvn</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">vnum</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="s">&quot;numeric signal []&quot;</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">pvo</span><span class="p">,</span> <span class="n">pvn</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">plot!</span><span class="p">(</span><span class="n">legend</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="svg" src="https://ozennefr.github.io/images/FM/output_9_0.svg"></p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+        </section>
+
+        <br><br><br>
+
+        <footer>
+          <div class="adjust-width">
+            <div id="author-block" class="w3-light-grey w3-border">
+              <div id="author-info">
+                <a href=""><img style="width: 60px; height: 60px;" src="" onerror="this.src='theme/images/avatar.png'" alt="Avatar"></a>
+                <div style="margin-left: 20px; margin-top: 15px;">
+                  <a href=""><span id="author-name" class="w3-hover-text-dark-grey">François Ozenne</span></a>
+                  <p id="author-story"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br><br><br>
+
+          <p style="font-size:10pt; font-style: italic;">Did you like this article? Share it with your friends!</p>
+          <div id="share" class="share">
+            <a href="http://www.facebook.com/sharer.php?u=https%3A//ozennefr.github.io/fm.html&amp;t=Ozenne%20Francois%3A%20Bode%20diagrams%20and%20sensors%20in%20Julia" target="_blank" class="w3-btn w3-indigo">
+              <i class="fa fa-facebook"></i> <span>Facebook</span>
+            </a>
+            <a href="http://twitter.com/share?url=https%3A//ozennefr.github.io/fm.html&amp;text=Ozenne%20Francois%3A%20Bode%20diagrams%20and%20sensors%20in%20Julia" target="_blank" class="w3-btn w3-blue">
+              <i class="fa fa-twitter"></i> <span>Twitter</span>
+            </a>
+            <a href="https://plus.google.com/share?url=https%3A//ozennefr.github.io/fm.html" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="w3-btn w3-red">
+              <i class="fa fa-google-plus"></i> <span>Google</span>
+            </a>
+          </div>
+
+          <br><br><br>
+
+
+
+        </footer>
+      </div>
+    </article>
+
+
+    <footer id="footer">
+      <div id="footer-copyright" class="w3-center w3-small w3-text-grey w3-padding-48">
+        <span>&copy;  Ozenne Francois </span>
+      </div>
+    </footer>
+
+
+
+  </body>
+</html>
