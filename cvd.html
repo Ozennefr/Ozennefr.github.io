@@ -267,9 +267,9 @@ Epoch 20/20
 <p>Plotting the learning curve is critical to diagnose the source of the error.</p>
 <p>There is three types of errors to consider :</p>
 <ul>
-<li>The bayes error, the minimal error possible. In this simple problem, we can assume that $err_{bayes} = 0$</li>
-<li>The biais. It is a symptom of underfitting, it happens when our model is not complex enough to model the data. It can be approached as $err_{bayes}-err_{train~plateau}$</li>
-<li>The variance. It is a symptom of overfitting, it happens when we fit the noise in the data and shows a lack of generalisation. It can be appoached as $err_{train} - err_{test}$</li>
+<li>The bayes error, the minimal error possible. In this simple problem, we can assume that <span class="math">\(err_{bayes} = 0\)</span></li>
+<li>The biais. It is a symptom of underfitting, it happens when our model is not complex enough to model the data. It can be approached as <span class="math">\(err_{bayes}-err_{train~plateau}\)</span></li>
+<li>The variance. It is a symptom of overfitting, it happens when we fit the noise in the data and shows a lack of generalisation. It can be appoached as <span class="math">\(err_{train} - err_{test}\)</span></li>
 </ul>
 <div class="highlight"><pre><span></span><span class="c1">#print(H.history)</span>
 <span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_epoch</span><span class="p">)]</span>
@@ -283,6 +283,61 @@ Epoch 20/20
 
 <p><img alt="png" src="https://ozennefr.github.io/images/cvd/output_12_1.png"></p>
 <p>In our case, we see that we haven't quiet reached the plateau yet, so we should try to continue trainig the algorithm for longer. </p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
 	<hr/>
 	<h6>Written by <a href="https://ozennefr.github.io/author/françois-ozenne.html">François Ozenne</a> in <a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a> on jeu. 29 mars 2018. Tags: <a href="https://ozennefr.github.io/tag/machine-learning.html">Machine learning</a>, <a href="https://ozennefr.github.io/tag/keras.html">keras</a>, <a href="https://ozennefr.github.io/tag/python.html">python</a>, <a href="https://ozennefr.github.io/tag/convnet.html">convnet</a>, </h6>
 </article>
@@ -304,43 +359,43 @@ Epoch 20/20
 							<div class="panel">
 								<h5>Tags</h5>
 								<ul class="tag-cloud">
-									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
-									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
-									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
-									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
-									<li><a href="/tag/fuel-consumption.html" class="tag-4">fuel consumption</a></li>
-									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
-									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
-									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
-									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
 									<li><a href="/tag/mooc.html" class="tag-4">mooc</a></li>
-									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
-									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
-									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
-									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
-									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
-									<li><a href="/tag/python.html" class="tag-1">python</a></li>
+									<li><a href="/tag/fuel-consumption.html" class="tag-4">fuel consumption</a></li>
 									<li><a href="/tag/coursera.html" class="tag-4">coursera</a></li>
-									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
-									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
-									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
-									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
-									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
-									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
-									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
-									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
-									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
-									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
-									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
+									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
 									<li><a href="/tag/metropolis-hasting.html" class="tag-4">metropolis-hasting</a></li>
-									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
-									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
+									<li><a href="/tag/python.html" class="tag-1">python</a></li>
 									<li><a href="/tag/statistics.html" class="tag-4">statistics</a></li>
 									<li><a href="/tag/tedx.html" class="tag-4">TEDx</a></li>
+									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
+									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
+									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
+									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
+									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
 									<li><a href="/tag/renault.html" class="tag-4">Renault</a></li>
-									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
-									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
+									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
+									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
+									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
+									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
+									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
 									<li><a href="/tag/genetic-algorithm.html" class="tag-4">genetic algorithm</a></li>
+									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
+									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
+									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
+									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
+									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
+									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
+									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
+									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
+									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
+									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
+									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
+									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
+									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
+									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
+									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
 								</ul>
 							</div>
 

@@ -103,15 +103,15 @@
 						<div class="medium-9 small-12 columns" role="content">
 <article>
 	<h2>Markov and direct sampling</h2>
-	<h2>Sampling of $\pi$</h2>
+	<h2>Sampling of <span class="math">\(\pi\)</span></h2>
 <p>We uniformly sample a square of side 2 centered on the origin. Whenever the sampled (x,y) coordinates form a vector whose norm is inferior to one (it belongs to the unit circle), we count it as a hit.</p>
 <p>The ratio hits/tries should converge to the ratio of areas, giving :</p>
-<p>$$
-\frac{hits}{tries} = \frac{A_{circle}}{A_{Square}}\
-\frac{hits}{tries} = \frac{\pi r^2}{2^2}\
+<div class="math">$$
+\frac{hits}{tries} = \frac{A_{circle}}{A_{Square}}\\
+\frac{hits}{tries} = \frac{\pi r^2}{2^2}\\
 \frac{hits}{tries} = \frac{\pi}{4}
-$$</p>
-<p>We can thus approximate $\pi$ as : $4\cdot \frac{hits}{tries}$</p>
+$$</div>
+<p>We can thus approximate <span class="math">\(\pi\)</span> as : <span class="math">\(4\cdot \frac{hits}{tries}\)</span></p>
 <h3>A. Direct sampling approach</h3>
 <p>The direct sampling approach is the most straight forward. It relies purely on randomness with no fancy stuffing.</p>
 <p>We simply draw two random numbers from [-1 1] and thats it !</p>
@@ -175,10 +175,10 @@ $$</p>
 <p>This is a way to uniformly (and even arbitrary distributions with few modifications known as the Metropolis-Hastings algorithm) sample an arbitrarily complex space. </p>
 <p>In our simple problem, we implement it as follows :
 - we start from a given position
-- at each step, we make a random step along x and a random step along y. The length of these steps is randomly chosen in [$-\Delta$, $\Delta$], where $\Delta$ is a parameter of the algorithm.
+- at each step, we make a random step along x and a random step along y. The length of these steps is randomly chosen in [<span class="math">\(-\Delta\)</span>, <span class="math">\(\Delta\)</span>], where <span class="math">\(\Delta\)</span> is a parameter of the algorithm.
 - It might happen that the sampled position is outside of the domain. In that case, we simply keep the old position as the new one. This propriety is <strong>essential</strong> for the convergence of the algorithm. It can be deduced from the ergodicity of the sampling, but I won't go into that right now.</p>
-<p>Finding the right $\Delta$ might sound like a hard task. Thankfully, there is a good rule of thumb that works surprisingly well on a large number of problems : the one half rule.</p>
-<p>This rule states that the optimal value of $\Delta$ should cause half of the moves to be rejected. If the rejection rate is too small, then your algorithm will likely be stuck in a small region of the search space. On the other extreme, if it is too big, you will likely have a hard time sampling the corners and avoid getting stuck for too long.</p>
+<p>Finding the right <span class="math">\(\Delta\)</span> might sound like a hard task. Thankfully, there is a good rule of thumb that works surprisingly well on a large number of problems : the one half rule.</p>
+<p>This rule states that the optimal value of <span class="math">\(\Delta\)</span> should cause half of the moves to be rejected. If the rejection rate is too small, then your algorithm will likely be stuck in a small region of the search space. On the other extreme, if it is too big, you will likely have a hard time sampling the corners and avoid getting stuck for too long.</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">markov_pi</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
     <span class="n">n_hits</span> <span class="o">=</span> <span class="mi">0</span>
@@ -193,7 +193,7 @@ $$</p>
 </pre></div>
 
 
-<p>We will try our algorithm with different values of $\Delta$, to experiment with the one half rule.</p>
+<p>We will try our algorithm with different values of <span class="math">\(\Delta\)</span>, to experiment with the one half rule.</p>
 <div class="highlight"><pre><span></span><span class="n">n_runs</span> <span class="o">=</span> <span class="mi">500</span>
 <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.062</span><span class="p">,</span> <span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]:</span>
     <span class="n">n_trials_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -238,13 +238,13 @@ $$</p>
 
 
 <p><img alt="png" src="https://ozennefr.github.io/images/SM1/output_17_2.png"></p>
-<p>As expected, the optimal $\delta$ (purple) gives an acceptance rate close to 50%.</p>
+<p>As expected, the optimal <span class="math">\(\delta\)</span> (purple) gives an acceptance rate close to 50%.</p>
 <p>We see that markov sampling performs worse than direct sampling, which is to be expected. The real power of Markov sampling comes when the sampling problem is hard.</p>
 <h2>Packing of n-spheres</h2>
 <p>In this new problem, we will try to find configurations of sphere in a closed box. This problem originate from statistical mechanics and have interesting properties for understanding phase transition.</p>
 <p>This is a hard sampling problem, because if we choose the positions purely at random, the chance of having two discs overlapping is very high. When that happen, we must do a "tabula rasa" and start from scratch again (i.e. we cannot keep previously sampled disc for this configuration).</p>
 <h3>A. Direct sampling</h3>
-<p>$\sigma$ is the radius of the spheres. We use direct sampling to sample the position of the center of the disc. </p>
+<p><span class="math">\(\sigma\)</span> is the radius of the spheres. We use direct sampling to sample the position of the center of the disc. </p>
 <p>This function produces one valid configuration of spheres. To do so, it stores the already sampled discs in L. Whenever ther is an overlap, we start sampling again form scratch.</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">direct_disks_box</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
     <span class="n">overlap</span> <span class="o">=</span> <span class="bp">True</span>
@@ -333,18 +333,19 @@ We can see that the histogram is a bit fuzzier, but we can trade speed for extra
 <h2>Quantum particle position sampling for a fixed temperature</h2>
 <p>we sample a quantum particle in the harmonic potential, at finite temperature. 
 Its probability to be in state n and at position x is given by :
-$$
-\pi(n, x) = (\psi_n(x))^2 * \exp(-\beta * E_n)\
+</p>
+<div class="math">$$
+\pi(n, x) = (\psi_n(x))^2 * \exp(-\beta * E_n)\\
 E_n = n+ 1/2
-$$</p>
-<p>The wave functions $\psi_n(x)$ are known</p>
-<p>The probability $\pi(n, x)$ expresses two fundamental aspects:</p>
-<p>The particle is in state n with the statistical Boltzmann probability proportional to $\exp(-\beta * n)$ </p>
-<p>While in state n, the particle is at position x with the quantum probability given by the wave function $\psi_n(x)^2$.</p>
+$$</div>
+<p>The wave functions <span class="math">\(\psi_n(x)\)</span> are known</p>
+<p>The probability <span class="math">\(\pi(n, x)\)</span> expresses two fundamental aspects:</p>
+<p>The particle is in state n with the statistical Boltzmann probability proportional to <span class="math">\(\exp(-\beta * n)\)</span> </p>
+<p>While in state n, the particle is at position x with the quantum probability given by the wave function <span class="math">\(\psi_n(x)^2\)</span>.</p>
 <p>We are at finite temperature :
-$T=1/\beta.$</p>
+<span class="math">\(T=1/\beta.\)</span></p>
 <p>The particle can "move" in two ways. a position move, and an energy move. Both of them will be sampled with the metropolis hasting algorithm. This algorithm allows us to sample from an unknown probability distribution.</p>
-<p>The algorithm is a slight variation of markov chains. In a markov chain, a legal position is always accepted. In the M-H algorithm, it is accepted randomly, with a probability equal to $\frac{w_{new}}{w_{old}}$, with $w$  the "energy" of the position. That means that a move that result in a gain in energy is always accepted, while a move degrading the energy can happen but not always.</p>
+<p>The algorithm is a slight variation of markov chains. In a markov chain, a legal position is always accepted. In the M-H algorithm, it is accepted randomly, with a probability equal to <span class="math">\(\frac{w_{new}}{w_{old}}\)</span>, with <span class="math">\(w\)</span>  the "energy" of the position. That means that a move that result in a gain in energy is always accepted, while a move degrading the energy can happen but not always.</p>
 <div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Squared wave function of a particle at position x</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -428,6 +429,61 @@ $T=1/\beta.$</p>
 
 <p><img alt="png" src="https://ozennefr.github.io/images/SM1/output_36_1.png"></p>
 <p>We can see that the markov sampling allow us to emulate the probability distribution without knowing it explicitely. This would not have been possible with direct sampling.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
 	<hr/>
 	<h6>Written by <a href="https://ozennefr.github.io/author/françois-ozenne.html">François Ozenne</a> in <a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a> on mer. 04 avril 2018. Tags: <a href="https://ozennefr.github.io/tag/python.html">python</a>, <a href="https://ozennefr.github.io/tag/markov.html">markov</a>, <a href="https://ozennefr.github.io/tag/sampling.html">sampling</a>, <a href="https://ozennefr.github.io/tag/metropolis-hasting.html">metropolis-hasting</a>, </h6>
 </article>
@@ -449,43 +505,43 @@ $T=1/\beta.$</p>
 							<div class="panel">
 								<h5>Tags</h5>
 								<ul class="tag-cloud">
-									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
-									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
-									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
-									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
-									<li><a href="/tag/fuel-consumption.html" class="tag-4">fuel consumption</a></li>
-									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
-									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
-									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
-									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
 									<li><a href="/tag/mooc.html" class="tag-4">mooc</a></li>
-									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
-									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
-									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
-									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
-									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
-									<li><a href="/tag/python.html" class="tag-1">python</a></li>
+									<li><a href="/tag/fuel-consumption.html" class="tag-4">fuel consumption</a></li>
 									<li><a href="/tag/coursera.html" class="tag-4">coursera</a></li>
-									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
-									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
-									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
-									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
-									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
-									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
-									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
-									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
-									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
-									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
-									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
+									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
 									<li><a href="/tag/metropolis-hasting.html" class="tag-4">metropolis-hasting</a></li>
-									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
-									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
+									<li><a href="/tag/python.html" class="tag-1">python</a></li>
 									<li><a href="/tag/statistics.html" class="tag-4">statistics</a></li>
 									<li><a href="/tag/tedx.html" class="tag-4">TEDx</a></li>
+									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
+									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
+									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
+									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
+									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
 									<li><a href="/tag/renault.html" class="tag-4">Renault</a></li>
-									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
-									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
+									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
+									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
+									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
+									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
+									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
 									<li><a href="/tag/genetic-algorithm.html" class="tag-4">genetic algorithm</a></li>
+									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
+									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
+									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
+									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
+									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
+									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
+									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
+									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
+									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
+									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
+									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
+									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
+									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
+									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
+									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
 								</ul>
 							</div>
 
