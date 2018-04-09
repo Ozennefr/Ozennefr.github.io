@@ -1,44 +1,111 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-          <title>Ozenne Francois</title>
-        <meta charset="utf-8" />
+<!doctype html>
+<html class="no-js" lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>Ozenne Francois</title>
+		<meta name="description" content="">
+		<meta name="author" content="Ozenne Francois">
+
+		<link rel="stylesheet" href="https://ozennefr.github.io/theme/css/foundation.css" />
+		<link rel="stylesheet" href="https://ozennefr.github.io/theme/css/pygment/monokai.css" />
+		<link rel="stylesheet" href="https://ozennefr.github.io/theme/css/custom.css" />
 
 
-    <meta name="tags" content="julia" />
-    <meta name="tags" content="sensors" />
-    <meta name="tags" content="bode diagram" />
-    <meta name="tags" content="metaprogramming" />
+		<script src="https://ozennefr.github.io/theme/js/modernizr.js"></script>
 
-</head>
+		<!-- Feeds -->
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="https://ozennefr.github.io/">Ozenne Francois <strong></strong></a></h1>
-        </header><!-- /#banner -->
-        <nav id="menu"><ul>
-            <li><a href="https://ozennefr.github.io/pages/about.html">About</a></li>
-        </ul></nav><!-- /#menu -->
-<section id="content" class="body">
-  <header>
-    <h2 class="entry-title">
-      <a href="https://ozennefr.github.io/fm.html" rel="bookmark"
-         title="Permalink to Bode diagrams and sensors in Julia">Bode diagrams and sensors in Julia</a></h2>
- 
-  </header>
-  <footer class="post-info">
-    <time class="published" datetime="2018-04-04T09:30:00+02:00">
-      mer. 04 avril 2018
-    </time>
-    <time class="modified" datetime="2018-04-04T09:30:00+02:00">
-      mer. 04 avril 2018
-    </time>
-    <address class="vcard author">
-      By           <a class="url fn" href="https://ozennefr.github.io/author/francois-ozenne.html">François Ozenne</a>
-    </address>
-  </footer><!-- /.post-info -->
-  <div class="entry-content">
-    <h2>Defining simples filters as Julia expressions</h2>
+
+		<!-- mathjax config similar to math.stackexchange -->
+		<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			jax: ["input/TeX", "output/HTML-CSS"],
+			tex2jax: {
+				inlineMath: [ ['$', '$'] ],
+				displayMath: [ ['$$', '$$']],
+				processEscapes: true,
+				skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+			},
+			messageStyle: "none",
+			"HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+		});
+		</script>
+		<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	</head>
+	<body>
+		<div class="off-canvas-wrap">
+			<div class="inner-wrap">
+				<!-- mobile top bar to activate nav -->
+				<nav class="tab-bar show-for-small">
+					<section class="left-small">
+						<a class="left-off-canvas-toggle menu-icon" ><span></span></a>
+					</section>
+
+					<section class="middle tab-bar-section">
+						<h1 class="title">Ozenne&nbsp;Francois</h1>
+					</section>
+				</nav>
+
+				<!-- mobile side bar nav -->
+				<aside class="left-off-canvas-menu">
+					<ul class="off-canvas-list">
+						<li><a href="https://ozennefr.github.io">Home</a></li>
+						<li><label>Categories</label></li>
+							<li class="active"><a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a></li>
+							<li ><a href="https://ozennefr.github.io/category/cv-entries.html">CV entries</a></li>
+							<li ><a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a></li>
+
+						<li><label>Links</label></li>
+							<li><a href="http://getpelican.com/">Pelican</a></li>
+							<li><a href="http://python.org/">Python.org</a></li>
+							<li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+							<li><a href="#">You can modify those links in your config file</a></li>
+
+
+						<li><label>Monthly Archives</label></li>
+									<li><a href="/posts/2018/04/index.html">avril 2018 (3)</a></li>
+									<li><a href="/posts/2018/03/index.html">mars 2018 (7)</a></li>
+
+						<li><label>Social</label></li>
+							<li><a href="#">Another social link</a></li>
+							<li><a href="#">You can add links in your config file</a></li>
+					</ul>	
+				</aside>
+
+				<!-- top bar nav -->
+				<nav class="top-bar hide-for-small-only" data-topbar>
+					<ul class="title-area">
+						<li class="name">
+							<h1><a href="https://ozennefr.github.io/">Ozenne Francois</a></h1>
+						</li>
+					</ul>
+
+					<section class="top-bar-section">
+						<ul class="left">
+								<li class="active"><a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a></li>
+								<li ><a href="https://ozennefr.github.io/category/cv-entries.html">CV entries</a></li>
+								<li ><a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a></li>
+						</ul>
+                        <ul class="right">                                                                                                                                           
+                                                                                                          
+····                                                                                                                                       
+                                     <li><a href="https://ozennefr.github.io/pages/about.html">About</a></li>                                    
+                                                                                                                                          
+                                                                                                                                             
+                        </ul>  
+					</section>
+				</nav>
+
+				<!-- Main Page Content and Sidebar -->
+				<section class="main-section">
+					<div class="row">
+						<!-- Main Content -->
+						<div class="medium-9 small-12 columns" role="content">
+<article>
+	<h2>Bode diagrams and sensors in Julia</h2>
+	<h2>Defining simples filters as Julia expressions</h2>
 <p>I chose to represent filters with Julia expressions for two main reasons :
 - I just wanted to play with meta programming
 - It allows me to compose filters easily to generate a very diverse familly of filters</p>
@@ -229,13 +296,67 @@
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-  </div><!-- /.entry-content -->
-</section>
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
-                which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
-        </footer><!-- /#contentinfo -->
-</body>
+	<hr/>
+	<h6>Written by <a href="https://ozennefr.github.io/author/françois-ozenne.html">François Ozenne</a> in <a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a> on mer. 04 avril 2018. Tags: <a href="https://ozennefr.github.io/tag/julia.html">julia</a>, <a href="https://ozennefr.github.io/tag/sensors.html">sensors</a>, <a href="https://ozennefr.github.io/tag/bode-diagram.html">bode diagram</a>, <a href="https://ozennefr.github.io/tag/metaprogramming.html">metaprogramming</a>, </h6>
+</article>
+
+<hr/>
+						</div>
+						<!-- End Main Content -->
+						<!-- Sidebar -->
+						<aside class="medium-3 hide-for-small-only columns">
+							<div class="panel">
+								<h5>Links</h5>
+								<ul class="side-nav">
+									<li><a href="http://getpelican.com/">Pelican</a></li>
+									<li><a href="http://python.org/">Python.org</a></li>
+									<li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+									<li><a href="#">You can modify those links in your config file</a></li>
+								</ul>
+							</div>
+
+							<div class="panel">
+								<h5>Tags</h5>
+								<ul class="tag-cloud">
+								</ul>
+							</div>
+
+							<div class="panel">
+								<h5>Monthly Archives</h5>
+								<ul class="side-nav">
+											<li><a href="/posts/2018/04/index.html">avril 2018 (3)</a></li>
+											<li><a href="/posts/2018/03/index.html">mars 2018 (7)</a></li>
+								</ul>
+							</div>
+
+							<div class="panel">
+								<h5>Social</h5>
+								<ul class="side-nav">
+									<li><a href="#">Another social link</a></li>
+									<li><a href="#">You can add links in your config file</a></li>
+								</ul>
+							</div>
+						</aside>
+						<!-- End Sidebar -->
+					</div>
+
+					<!-- Footer -->
+					<footer class="row">
+						<div class="medium-9 small-12">
+							<hr/>
+							<p class="text-center">Powered by <a href="http://getpelican.com">Pelican</a> and <a href="http://foundation.zurb.com/">Zurb Foundation</a>. Theme by <a href="http://hamaluik.com">Kenton Hamaluik</a>.</p>
+						</div>
+					</footer>
+					<!-- End Footer -->
+				</section>
+				<a class="exit-off-canvas"></a>
+			</div><!--off-canvas inner-->
+		</div><!--off-canvas wrap-->
+
+		<script src="https://ozennefr.github.io/theme/js/jquery.js"></script>
+		<script src="https://ozennefr.github.io/theme/js/foundation.min.js"></script>
+		<script>
+			$(document).foundation();
+		</script>
+	</body>
 </html>
