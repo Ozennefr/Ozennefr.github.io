@@ -1,97 +1,44 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<head>
+          <title>Ozenne Francois</title>
+        <meta charset="utf-8" />
 
-    <title>Classifying cats and dogs using Keras &ndash; Ozenne Francois</title>
 
-    <!-- Meta -->
-    <meta name="description" content="Ozenne Francois &ndash; ">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="tags" content="Machine learning" />
+    <meta name="tags" content="keras" />
+    <meta name="tags" content="python" />
+    <meta name="tags" content="convnet" />
 
-    <!-- Social -->
-    <meta property="article:author" content="François Ozenne" />
-    <meta property="article:section" content="Machine learning" />
-    <meta property="article:published_time" content="2018-03-29" />
+</head>
 
-    <meta property="og:type" content="article"/>
-    <meta property="og:title" content="Classifying cats and dogs using Keras"/>
-    <meta property="og:description" content="In this post, we use convolutionnal neural networks to classify cats and dogs images (data from kaggle. The implementation will be done with Keras, a powerfull Python package usefull to generate complex TensorFlow models easilly."/>
-    <meta property="og:site_name" content="Ozenne Francois" />
-    <meta property="og:url" content="https://ozennefr.github.io/cvd.html"/>
-
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Classifying cats and dogs using Keras">
-    <meta name="twitter:description" content="In this post, we use convolutionnal neural networks to classify cats and dogs images (data from kaggle. The implementation will be done with Keras, a powerfull Python package usefull to generate complex TensorFlow models easilly.">
-    <meta name="twitter:url" content="https://ozennefr.github.io/cvd.html">
-
-    <!-- Feed -->
-
-    <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:regular,bold">
-    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/w3.css">
-    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/style.css">
-    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/jqcloud.css">
-    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="https://ozennefr.github.io/theme/css/pygments-highlight-github.css">
-
-    <!-- Icon -->
-
-    <!-- JavaScript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="https://ozennefr.github.io/theme/js/jqcloud.min.js"></script>
-  </head>
-
-  <body>
-    <div class="w3-row w3-card w3-white">
-      <header id="header">
-        <a href="https://ozennefr.github.io" id="header-logo" title="Home">OF</a>
-        <nav id="header-menu">
-          <ul>
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="https://ozennefr.github.io/">Ozenne Francois <strong></strong></a></h1>
+        </header><!-- /#banner -->
+        <nav id="menu"><ul>
             <li><a href="https://ozennefr.github.io/pages/about.html">About</a></li>
-            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a></li>
-            <li class="w3-bottombar w3-border-white w3-hover-border-green" ><a href="https://ozennefr.github.io/category/cv-entries.html">CV entries</a></li>
-            <li class="w3-bottombar w3-border-white w3-hover-border-green" style="font-weight: bold;"><a href="https://ozennefr.github.io/category/machine-learning.html">Machine learning</a></li>
-          </ul>
-        </nav>
-      </header>
-    </div>
-
-
-
-    <br><br><br>
-
-    <article>
-      <header class="w3-container col-main">
-        <h1>Classifying cats and dogs using Keras</h1>
-        <div class="post-info">
-          <div class="w3-opacity w3-margin-right w3-margin-bottom" style="flex-grow: 1;">
-            <span><time datetime="2018-03-29T09:30:00+02:00">jeu. 29 mars 2018</time> in <a href="https://ozennefr.github.io/category/machine-learning.html" title="All articles in category Machine learning">Machine learning</a></span>
-          </div>
-          <div>
-            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
-              <a href="https://ozennefr.github.io/tag/machine-learning.html" title="All articles with Machine Learning tag">#Machine learning</a>
-            </span>
-            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
-              <a href="https://ozennefr.github.io/tag/keras.html" title="All articles with Keras tag">#keras</a>
-            </span>
-            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
-              <a href="https://ozennefr.github.io/tag/python.html" title="All articles with Python tag">#python</a>
-            </span>
-            <span class="w3-tag w3-light-grey w3-text-green w3-hover-green">
-              <a href="https://ozennefr.github.io/tag/convnet.html" title="All articles with Convnet tag">#convnet</a>
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <br>
-
-
-      <div class="col-main w3-container">
-        <section id="content">
-          <h2>Usefull packages</h2>
+        </ul></nav><!-- /#menu -->
+<section id="content" class="body">
+  <header>
+    <h2 class="entry-title">
+      <a href="https://ozennefr.github.io/cvd.html" rel="bookmark"
+         title="Permalink to Classifying cats and dogs using Keras">Classifying cats and dogs using Keras</a></h2>
+ 
+  </header>
+  <footer class="post-info">
+    <time class="published" datetime="2018-03-29T09:30:00+02:00">
+      jeu. 29 mars 2018
+    </time>
+    <time class="modified" datetime="2018-03-29T09:30:00+02:00">
+      jeu. 29 mars 2018
+    </time>
+    <address class="vcard author">
+      By           <a class="url fn" href="https://ozennefr.github.io/author/francois-ozenne.html">François Ozenne</a>
+    </address>
+  </footer><!-- /.post-info -->
+  <div class="entry-content">
+    <h2>Usefull packages</h2>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span> <span class="c1"># linear algebra</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span> <span class="c1"># data processing, CSV file I/O (e.g. pd.read_csv)</span>
@@ -326,54 +273,13 @@ Epoch 20/20
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-        </section>
-
-        <br><br><br>
-
-        <footer>
-          <div class="adjust-width">
-            <div id="author-block" class="w3-light-grey w3-border">
-              <div id="author-info">
-                <a href=""><img style="width: 60px; height: 60px;" src="" onerror="this.src='theme/images/avatar.png'" alt="Avatar"></a>
-                <div style="margin-left: 20px; margin-top: 15px;">
-                  <a href=""><span id="author-name" class="w3-hover-text-dark-grey">François Ozenne</span></a>
-                  <p id="author-story"></p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <br><br><br>
-
-          <p style="font-size:10pt; font-style: italic;">Did you like this article? Share it with your friends!</p>
-          <div id="share" class="share">
-            <a href="http://www.facebook.com/sharer.php?u=https%3A//ozennefr.github.io/cvd.html&amp;t=Ozenne%20Francois%3A%20Classifying%20cats%20and%20dogs%20using%20Keras" target="_blank" class="w3-btn w3-indigo">
-              <i class="fa fa-facebook"></i> <span>Facebook</span>
-            </a>
-            <a href="http://twitter.com/share?url=https%3A//ozennefr.github.io/cvd.html&amp;text=Ozenne%20Francois%3A%20Classifying%20cats%20and%20dogs%20using%20Keras" target="_blank" class="w3-btn w3-blue">
-              <i class="fa fa-twitter"></i> <span>Twitter</span>
-            </a>
-            <a href="https://plus.google.com/share?url=https%3A//ozennefr.github.io/cvd.html" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="w3-btn w3-red">
-              <i class="fa fa-google-plus"></i> <span>Google</span>
-            </a>
-          </div>
-
-          <br><br><br>
-
-
-
-        </footer>
-      </div>
-    </article>
-
-
-    <footer id="footer">
-      <div id="footer-copyright" class="w3-center w3-small w3-text-grey w3-padding-48">
-        <span>&copy;  Ozenne Francois </span>
-      </div>
-    </footer>
-
-
-
-  </body>
+  </div><!-- /.entry-content -->
+</section>
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+        </footer><!-- /#contentinfo -->
+</body>
 </html>
