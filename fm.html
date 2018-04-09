@@ -119,7 +119,7 @@
 - I just wanted to play with meta programming
 - It allows me to compose filters easily to generate a very diverse familly of filters</p>
 <p>When we create a filter through it's building function, we generate a Julia expression (preceeded by :), which is simply a piece of code waiting to be evaluated. This allow us to put the parameters directly in the expression, instead of carrying them along every time we use the function. In an expression, the '$' token signifies that the value should be replaced by it's current value.</p>
-<p>To make the filter, we use the "makefilter" function to transform the expression into an executable function taking $\omega$ as a parameter.</p>
+<p>To make the filter, we use the "makefilter" function to transform the expression into an executable function taking <span class="math">\(\omega\)</span> as a parameter.</p>
 <div class="highlight"><pre><span></span><span class="n">passeBasO1</span><span class="p">(</span><span class="n">ωc</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">im</span><span class="o">*</span><span class="p">(</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="p">)));</span> <span class="c">#low-pass first order</span>
 <span class="n">passeBasO2</span><span class="p">(</span><span class="n">ωc</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="mi">2</span><span class="o">*$</span><span class="n">z</span><span class="o">*</span><span class="nb">im</span><span class="o">*</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="o">-</span><span class="p">(</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">));</span> <span class="c">#low-pass second order</span>
 <span class="n">derivateur</span><span class="p">(</span><span class="n">ωc</span><span class="p">)</span> <span class="o">=</span> <span class="o">:</span><span class="p">(</span><span class="nb">im</span><span class="o">*</span><span class="n">ω</span><span class="o">/$</span><span class="n">ωc</span><span class="p">);</span> <span class="c">#derivative filter</span>
@@ -139,7 +139,7 @@
 </pre></div>
 
 
-<p>Only leaving $\omega$ as a variable. Then, the expression :</p>
+<p>Only leaving <span class="math">\(\omega\)</span> as a variable. Then, the expression :</p>
 <p>For example, the instruction :</p>
 <div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">makeFilter</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span>
 </pre></div>
@@ -229,7 +229,7 @@
 <p><img alt="svg" src="https://ozennefr.github.io/images/FM/output_7_0.svg"></p>
 <p>The bode diagram look like what we expect.</p>
 <h2>Plotting the sensor response</h2>
-<p>We can now plot the sensor response to a sinusoidal signal of amplitude $4.5~g$ and frequency $f=150~Hz$. We also plot the numerical signal after a conversion in a CAN with a resolution of only 4 bytes.</p>
+<p>We can now plot the sensor response to a sinusoidal signal of amplitude <span class="math">\(4.5~g\)</span> and frequency <span class="math">\(f=150~Hz\)</span>. We also plot the numerical signal after a conversion in a CAN with a resolution of only 4 bytes.</p>
 <div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="mi">150</span><span class="p">;</span>
 <span class="n">T</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">f</span><span class="p">;</span>
 <span class="n">t</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">T</span><span class="p">,</span><span class="mi">500</span><span class="p">);</span>
@@ -250,6 +250,61 @@
 
 
 <p><img alt="svg" src="https://ozennefr.github.io/images/FM/output_9_0.svg"></p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
 	<hr/>
 	<h6>Written by <a href="https://ozennefr.github.io/author/françois-ozenne.html">François Ozenne</a> in <a href="https://ozennefr.github.io/category/algorithms.html">Algorithms</a> on mer. 04 avril 2018. Tags: <a href="https://ozennefr.github.io/tag/julia.html">julia</a>, <a href="https://ozennefr.github.io/tag/sensors.html">sensors</a>, <a href="https://ozennefr.github.io/tag/bode-diagram.html">bode diagram</a>, <a href="https://ozennefr.github.io/tag/metaprogramming.html">metaprogramming</a>, </h6>
 </article>
@@ -271,43 +326,43 @@
 							<div class="panel">
 								<h5>Tags</h5>
 								<ul class="tag-cloud">
-									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
-									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
-									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
-									<li><a href="/tag/coursera.html" class="tag-4">coursera</a></li>
-									<li><a href="/tag/metropolis-hasting.html" class="tag-4">metropolis-hasting</a></li>
-									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
+									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
 									<li><a href="/tag/renault.html" class="tag-4">Renault</a></li>
 									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
-									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
-									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
-									<li><a href="/tag/python.html" class="tag-1">python</a></li>
+									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
+									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
+									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
+									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
+									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
+									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
+									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
+									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
+									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
+									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
+									<li><a href="/tag/mooc.html" class="tag-4">mooc</a></li>
+									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
+									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
 									<li><a href="/tag/genetic-algorithm.html" class="tag-4">genetic algorithm</a></li>
 									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
-									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
-									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
-									<li><a href="/tag/mooc.html" class="tag-4">mooc</a></li>
-									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
-									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
-									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
-									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
-									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
-									<li><a href="/tag/tedx.html" class="tag-4">TEDx</a></li>
-									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
-									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
-									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
-									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
-									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
-									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
-									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
-									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
-									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
-									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
-									<li><a href="/tag/statistics.html" class="tag-4">statistics</a></li>
 									<li><a href="/tag/fuel-consumption.html" class="tag-4">fuel consumption</a></li>
-									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/metropolis-hasting.html" class="tag-4">metropolis-hasting</a></li>
+									<li><a href="/tag/tedx.html" class="tag-4">TEDx</a></li>
+									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
+									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
+									<li><a href="/tag/coursera.html" class="tag-4">coursera</a></li>
+									<li><a href="/tag/statistics.html" class="tag-4">statistics</a></li>
+									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
+									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
+									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
+									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
 									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
-									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
+									<li><a href="/tag/python.html" class="tag-1">python</a></li>
+									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
+									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
+									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
+									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
+									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
 								</ul>
 							</div>
 
