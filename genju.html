@@ -218,10 +218,12 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
     <span class="k">for</span> <span class="n">iVar</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span>
         <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="k">for</span> <span class="n">iGene</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">genePerVar</span>
-            <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">+=</span> <span class="n">individual</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="n">iGene</span><span class="o">+</span><span class="p">(</span><span class="n">iVar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">genePerVar</span><span class="p">]</span><span class="o">*</span><span class="mf">2.0</span><span class="o">^</span><span class="p">(</span><span class="n">iGene</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">+=</span> 
+            <span class="n">individual</span><span class="o">.</span><span class="n">genotype</span><span class="p">[</span><span class="n">iGene</span><span class="o">+</span><span class="p">(</span><span class="n">iVar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">genePerVar</span><span class="p">]</span><span class="o">*</span><span class="mf">2.0</span><span class="o">^</span><span class="p">(</span><span class="n">iGene</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">end</span>
-        <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">problem</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">problem</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="mf">2.0</span><span class="o">.^</span><span class="p">(</span><span class="o">-</span><span class="n">genePerVar</span><span class="p">))</span> <span class="o">.*</span>
-                                    <span class="mf">2.0</span><span class="o">^</span><span class="p">(</span><span class="o">-</span><span class="n">genePerVar</span><span class="p">)</span><span class="o">.*</span><span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span>
+        <span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">problem</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span> <span class="o">+</span>
+            <span class="mf">2.0</span><span class="o">*</span><span class="n">problem</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="mf">2.0</span><span class="o">.^</span><span class="p">(</span><span class="o">-</span><span class="n">genePerVar</span><span class="p">))</span> <span class="o">.*</span>
+            <span class="mf">2.0</span><span class="o">^</span><span class="p">(</span><span class="o">-</span><span class="n">genePerVar</span><span class="p">)</span><span class="o">.*</span><span class="n">individual</span><span class="o">.</span><span class="n">phenotype</span><span class="p">[</span><span class="n">iVar</span><span class="p">]</span>
     <span class="k">end</span>
 <span class="k">end</span>
 </pre></div>
@@ -235,7 +237,8 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
 
 
 <p>The selection operation is implemented as a tournament selection. In this case, we select a few individuals (tournament size) at random in the population. Then, the tournament takes place : with the probability ptour, the best individual from the sampled population is selected. otherwise, we discard it and continue the tournament with the remaining individuals. </p>
-<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">selectIndividual</span><span class="p">(</span><span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">})</span>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">selectIndividual</span><span class="p">(</span><span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> 
+                        <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">})</span>
     <span class="n">selected</span> <span class="o">=</span> <span class="n">Individual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="nb">Inf</span><span class="p">)</span>
     <span class="n">fitnesses</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="n">tournamentSize</span><span class="p">)</span>
     <span class="n">subPop</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">true</span><span class="p">)</span>
@@ -283,7 +286,8 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
 
 <h2>Plotting progress</h2>
 <p>To make sure our algorithm is running smoothly, and to monitor the convergence, we need to plot some statistics helping us tweak the numerous parameters.</p>
-<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">plotPopulation</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">,</span> <span class="n">fitnessHistory</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">plotPopulation</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> 
+                    <span class="n">problem</span><span class="o">::</span><span class="n">Problem</span><span class="p">,</span> <span class="n">fitnessHistory</span><span class="p">)</span>
 
     <span class="n">nVar</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">numberOfVar</span>
     <span class="n">nIndiv</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
@@ -315,17 +319,24 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
 
 <h2>The next generation</h2>
 <p>From all of the functions we already made, this function is pretty straightforward to implement.</p>
-<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">makeNewGeneration</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">gen</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> 
-                            <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span>
-                            <span class="n">elitism</span><span class="o">::</span><span class="kt">Bool</span><span class="p">,</span> <span class="n">bestInd</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">pcross</span><span class="o">::</span><span class="kt">Float64</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="k">function</span> <span class="n">makeNewGeneration</span><span class="p">(</span><span class="n">pop</span><span class="o">::</span><span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> 
+                            <span class="n">gen</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">ptour</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span>
+                            <span class="n">tournamentSize</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span>
+                            <span class="n">pmut</span><span class="o">::</span><span class="kt">Float64</span><span class="p">,</span>
+                            <span class="n">elitism</span><span class="o">::</span><span class="kt">Bool</span><span class="p">,</span> <span class="n">bestInd</span><span class="o">::</span><span class="kt">Int64</span><span class="p">,</span>
+                            <span class="n">pcross</span><span class="o">::</span><span class="kt">Float64</span><span class="p">)</span>
     <span class="n">popSize</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
     <span class="n">newGen</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="n">Individual</span><span class="p">}(</span><span class="n">popSize</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">carryOver</span> <span class="o">!=</span> <span class="mf">0.</span>
-        <span class="n">newGen</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">)]</span> <span class="o">=</span> <span class="n">selectIndividuals</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">),</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
+        <span class="n">newGen</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">)]</span> <span class="o">=</span> 
+            <span class="n">selectIndividuals</span><span class="p">(</span><span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">),</span>
+                                <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
     <span class="k">end</span>
     <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="n">round</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="n">carryOver</span><span class="o">*</span><span class="n">popSize</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="o">:</span><span class="n">popSize</span>
         <span class="k">if</span> <span class="n">rand</span><span class="p">(</span><span class="kt">Float64</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">pcross</span>
-            <span class="n">offspring1</span><span class="p">,</span> <span class="n">offspring2</span>  <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">selectIndividuals</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
+            <span class="n">offspring1</span><span class="p">,</span> <span class="n">offspring2</span>  <span class="o">=</span> 
+                    <span class="o">*</span><span class="p">(</span><span class="n">selectIndividuals</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span>
+                                        <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span><span class="o">...</span><span class="p">)</span>
         <span class="k">else</span>
             <span class="n">parents</span> <span class="o">=</span> <span class="n">selectIndividuals</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">tournamentSize</span><span class="p">,</span> <span class="n">ptour</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
             <span class="n">offspring1</span><span class="p">,</span> <span class="n">offspring2</span> <span class="o">=</span> <span class="p">(</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -343,8 +354,7 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
         <span class="n">newGen</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">pop</span><span class="p">[</span><span class="n">bestInd</span><span class="p">]</span>
     <span class="k">end</span>
     <span class="k">return</span><span class="p">(</span><span class="n">newGen</span><span class="p">)</span>
-<span class="k">end</span>
-<span class="p">;</span> 
+<span class="k">end</span><span class="p">;</span> 
 </pre></div>
 
 
@@ -380,8 +390,7 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
         <span class="k">end</span>
     <span class="k">end</span>
     <span class="k">return</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">bestFitness</span><span class="p">,</span> <span class="n">bestIndiv</span><span class="p">)</span>
-<span class="k">end</span>
-<span class="p">;</span>
+<span class="k">end</span><span class="p">;</span>
 </pre></div>
 
 
@@ -489,43 +498,43 @@ mature, best-of-breed open source C and Fortran libraries for <a href="http://do
 							<div class="panel">
 								<h5>Tags</h5>
 								<ul class="tag-cloud">
-									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
-									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
-									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
-									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
-									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
-									<li><a href="/tag/coursera.html" class="tag-4">coursera</a></li>
 									<li><a href="/tag/tedx.html" class="tag-4">TEDx</a></li>
-									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
-									<li><a href="/tag/statistics.html" class="tag-4">statistics</a></li>
-									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
-									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
 									<li><a href="/tag/metropolis-hasting.html" class="tag-4">metropolis-hasting</a></li>
-									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
-									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
-									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
-									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
-									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
-									<li><a href="/tag/python.html" class="tag-1">python</a></li>
-									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
-									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
-									<li><a href="/tag/genetic-algorithm.html" class="tag-4">genetic algorithm</a></li>
-									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
-									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
-									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
 									<li><a href="/tag/fuel-consumption.html" class="tag-4">fuel consumption</a></li>
-									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
-									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
-									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
-									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
-									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
-									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
-									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
-									<li><a href="/tag/mooc.html" class="tag-4">mooc</a></li>
-									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
+									<li><a href="/tag/sampling.html" class="tag-4">sampling</a></li>
+									<li><a href="/tag/algorithm.html" class="tag-4">algorithm</a></li>
+									<li><a href="/tag/statistics.html" class="tag-4">statistics</a></li>
+									<li><a href="/tag/dynamics.html" class="tag-4">dynamics</a></li>
+									<li><a href="/tag/markov.html" class="tag-4">markov</a></li>
 									<li><a href="/tag/client-profile.html" class="tag-4">client profile</a></li>
+									<li><a href="/tag/automation.html" class="tag-4">automation</a></li>
+									<li><a href="/tag/machine-learning.html" class="tag-1">Machine learning</a></li>
+									<li><a href="/tag/utc.html" class="tag-4">UTC</a></li>
+									<li><a href="/tag/validation.html" class="tag-4">validation</a></li>
 									<li><a href="/tag/convnet.html" class="tag-4">convnet</a></li>
+									<li><a href="/tag/genetic-algorithm.html" class="tag-4">genetic algorithm</a></li>
+									<li><a href="/tag/sensors.html" class="tag-4">sensors</a></li>
+									<li><a href="/tag/engineering.html" class="tag-1">engineering</a></li>
+									<li><a href="/tag/event-organization.html" class="tag-4">event organization</a></li>
+									<li><a href="/tag/optimization.html" class="tag-4">optimization</a></li>
+									<li><a href="/tag/coursera.html" class="tag-4">coursera</a></li>
 									<li><a href="/tag/renault.html" class="tag-4">Renault</a></li>
+									<li><a href="/tag/keras.html" class="tag-4">keras</a></li>
+									<li><a href="/tag/chalmers.html" class="tag-4">Chalmers</a></li>
+									<li><a href="/tag/bode-diagram.html" class="tag-4">bode diagram</a></li>
+									<li><a href="/tag/julia.html" class="tag-1">julia</a></li>
+									<li><a href="/tag/utécia.html" class="tag-4">UTéCia</a></li>
+									<li><a href="/tag/optimisation.html" class="tag-4">optimisation</a></li>
+									<li><a href="/tag/powertrain.html" class="tag-4">powertrain</a></li>
+									<li><a href="/tag/genetic.html" class="tag-4">genetic</a></li>
+									<li><a href="/tag/sem.html" class="tag-4">SEM</a></li>
+									<li><a href="/tag/algorithms.html" class="tag-4">algorithms</a></li>
+									<li><a href="/tag/mechanical.html" class="tag-4">mechanical</a></li>
+									<li><a href="/tag/automotive.html" class="tag-4">automotive</a></li>
+									<li><a href="/tag/mooc.html" class="tag-4">mooc</a></li>
+									<li><a href="/tag/shell-eco-marathon.html" class="tag-4">shell eco marathon</a></li>
+									<li><a href="/tag/metaprogramming.html" class="tag-4">metaprogramming</a></li>
+									<li><a href="/tag/python.html" class="tag-1">python</a></li>
 								</ul>
 							</div>
 
